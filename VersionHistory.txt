@@ -1,0 +1,21 @@
+﻿ASCOM Environment driver for Q-Astro Dew Monitor
+To be used with Q-Astro Dew Management Arduino Code
+Description:	Q-Astro Dew Monitor driver is part of a LocalServer ASCOM Solution 
+		which uses an Arduino NANO board to control Environment through a single communication channel(USB Cable)
+
+Implements:	ASCOM Q-Astro Dew Monitor interface version : 3.0.0
+Author:		(RvE) Raoul van Eijndhoven Support@quidne-it.com
+
+Verion Log:
+
+Date	    Who	Vers	Description
+----------  ---	-----	-------------------------------------------------------
+05-02-2019  RvE	1.0.0	Initial edit, created from ASCOM driver template and first release of a working driver.
+17-02-2019  RvE 1.5.0   Added functionality to permanently switch on display. Also be able to recognise that the correct Firmware is running on the Arduino.
+31/08/2019  RvE 2.0.0	Complete rewrite of the LocalServer ASCOM code.
+04/12/2019  RvE 2.0.1	Resolve setup bug when using the Dew Management App
+21/01/2020  RvE 2.1.0	Show Pressure in hPa in UI
+02/02/2021  RvE 3.0.0	Redesign of Arduino software and ASCOM drivers. More simplification of the code.
+			Change of name for the ASCOM code to Q-Astro Monitor as the system is self managing.
+			First release available on GitHub
+--------------------------------------------------------------------------------
