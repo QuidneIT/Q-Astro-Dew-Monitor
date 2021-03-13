@@ -7,11 +7,11 @@
   !!!!!!!!!  If Arduino has updated Lib Adafruit_BME280.h, make sure to change the address in that file to 76.
 */
 
-#define PIN_TEMP_SENSOR1  3
-#define PIN_DEW_CHANNEL1  5
+#define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
+#define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
 
-#define PIN_TEMP_SENSOR2  2
-#define PIN_DEW_CHANNEL2  6
+#define PIN_TEMP_SENSOR2  2 //Use 3 on board v1.5
+#define PIN_DEW_CHANNEL2  5 // Not changed between boards
 
 #define TEMP_UPDATE_INTERVAL  10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
@@ -202,13 +202,13 @@ double GetSensorTemp(int sensor)
     else
         dTemp = sensor2.getTempCByIndex(0);
 
-    if (dTemp == -127.00)   //If Sensor not connected, return value will be -127. If the case then the dew manager should not do anything.
-        return -1;
+//    if (dTemp == -127.00)   //If Sensor not connected, return value will be -127. If the case then the dew manager should not do anything.
+//        return 99;
 
     if ((dTemp != -127.00) && (dTemp != 85.00))
         return dTemp;
     else
-        return 0;
+        return 99;
 }
 
 int UpdateDewPower(int DewChannel)
@@ -216,10 +216,13 @@ int UpdateDewPower(int DewChannel)
     double Temp = GetSensorTemp(DewChannel);
     int DewPower = 0;
 
-    if (Temp > MIN_DEVICE_TEMP)
-        DewPower = calcDewHeaterPowerSetting(Temp, DewPoint);
-    else
-        DewPower = calcDewHeaterPowerSetting(Temp, MIN_DEVICE_TEMP);
+    if (Temp != 999)
+    {
+      if (Temp > MIN_DEVICE_TEMP)
+          DewPower = calcDewHeaterPowerSetting(Temp, DewPoint);
+      else
+          DewPower = calcDewHeaterPowerSetting(Temp, MIN_DEVICE_TEMP);
+    }
 
     switch (DewChannel)
     {
@@ -227,13 +230,12 @@ int UpdateDewPower(int DewChannel)
         DewTemp1 = Temp;
         analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
         break;
-
     case 2:
         DewTemp2 = Temp;
         analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
         break;
     }
-
+    
     return ((DewPower / MAX_DEWPOWER) * 100);    // Return Dew Power in Percentage.
 }
 

@@ -94,6 +94,7 @@ namespace ASCOM.QAstroDew
                 lbDigPressure.Value = aObserving.Pressure;
 
                 lbDigAltitude.Value = Convert.ToDouble(aObserving.CommandString("a", false));
+                
                 lbDigDewTemp1.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("v", false)));
                 lbDigDewPower1.Value = Convert.ToDouble(aObserving.CommandString("w", false));
 

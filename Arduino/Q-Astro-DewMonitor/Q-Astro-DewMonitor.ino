@@ -17,7 +17,8 @@
 #include "Timer.h"
 #include <EEPROM.h>
 
-#define DEVICE_RESPONSE "Q-Astro Dew Monitor ver 3.0.0"
+#define DEVICE_RESPONSE "Q-Astro Dew Monitor"
+#define VERSION "v3.0.0"
 
 #define qastroId 'i'
 #define observingconditionsId 'o'
@@ -31,8 +32,11 @@ int DisplayAlwaysOn = 0;
 void setup() 
 {
   InitSerial();
-//  InitOLEDLCD();
+  Serial.println("Init OLED");
+  InitOLEDLCD();
+  Serial.println("Init Dew Monitor");
   InitObservingConditions();
+  Serial.println("Ready..");
 }
 
 void loop() {
@@ -41,7 +45,7 @@ void loop() {
 
     switch((char)ASCOMcmd[0]) {
       case qastroId:
-          SendSerialCommand(DEVICE_RESPONSE);
+          SendSerialCommand((String(DEVICE_RESPONSE) + " " + String(VERSION)));
         break;
 
       case observingconditionsId: //Case fhe function is for the Environmentals

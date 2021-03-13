@@ -8,15 +8,11 @@
 
 ;Used for Icon and Registration
 #define MainFile = "ASCOM.QAstroDew.exe"
-;"ASCOM.QAstroDew.ManagerApp.exe"
 
 ;#define ReleaseType = "Release"
 #define ReleaseType = "Debug"
 
-;#define OneDrivePath = "C:\Temp"
-#define OneDrivePath = "C:\Users\Quidne IT\OneDrive - QUIDNE IT LTD"
-;#define OneDrivePath = "C:\Users\rvaneynd\OneDrive - QUIDNE IT LTD"
-;#define OneDrivePath = "G:\OneDrive - QUIDNE IT LTD"
+#define SourcePath = "<Path to location of Source Code>"
 
 #define DefaultCodeFolder="Q-Astro Dew Monitor"
 
@@ -39,8 +35,8 @@ OutputBaseFilename="{#AppName} ASCOM - {#ReleaseType} ({#AppVersion})"
 Compression=lzma
 SolidCompression=yes
 ; Put there by Platform if Driver Installer Support selected
-WizardImageFile="{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\Installer\WizardImage.bmp"
-LicenseFile=    "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\Installer\CreativeCommons.txt"
+WizardImageFile="{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\Installer\WizardImage.bmp"
+LicenseFile=    "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\Installer\CreativeCommons.txt"
 ; {cf}\ASCOM\Uninstall\FilterWheel folder created by Platform, always
 UninstallFilesDir="{cf}\ASCOM\Uninstall\{#AppName}"
 UninstallDisplayIcon="{app}\{#MainFile}"
@@ -52,14 +48,14 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "{cf}\ASCOM\Uninstall\{#AppName}"
 
 [Files]
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.ObservingConditions.dll"; DestDir: "{app}" ;Flags: ignoreversion
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.MonitorApp.exe"; DestDir: "{app}" ;Flags: ignoreversion
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\MetroFramework.dll"; DestDir: "{app}" ;Flags: ignoreversion
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\LBIndustrialCtrls.dll"; DestDir: "{app}" ;Flags: ignoreversion
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.exe"; DestDir: "{app}"  ; Flags: ignoreversion
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.ObservingConditions.dll"; DestDir: "{app}" ;Flags: ignoreversion
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.MonitorApp.exe"; DestDir: "{app}" ;Flags: ignoreversion
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\MetroFramework.dll"; DestDir: "{app}" ;Flags: ignoreversion
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\LBIndustrialCtrls.dll"; DestDir: "{app}" ;Flags: ignoreversion
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\QAstroDew\bin\{#ReleaseType}\ASCOM.QAstroDew.exe"; DestDir: "{app}"  ; Flags: ignoreversion
 ;AfterInstall: RegASCOM()
 
-Source: "{#OneDrivePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\VersionHistory.txt"; DestDir: "{app}" ;Flags: isreadme
+Source: "{#SourcePath}\Development\Q-Astro\{#AppName}\{#AppVersion}\VersionHistory.txt"; DestDir: "{app}" ;Flags: isreadme
 
 [Icons]
 Name: "{commondesktop}\{#AppName}"; Filename: "{app}\ASCOM.QAstroDew.ManagerApp.exe"

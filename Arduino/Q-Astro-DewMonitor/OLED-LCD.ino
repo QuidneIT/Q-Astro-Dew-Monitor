@@ -35,7 +35,9 @@ void ShowQAstro()
   switchonDisplay();
   display.setFont(System5x7);
   display.clear();
-  display.println("Q-Astro Dew Monitor");
+  display.println(DEVICE_RESPONSE);
+  display.println(VERSION);
+  display.println("");
   display.println("by");
   display.println("");
   display.println("Quidne IT Ltd.");
@@ -92,8 +94,13 @@ void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, in
     display.print("Heater ");
     display.print(hHeater);
     display.print(" Tmp: ");
-    display.print(hTemp);
-    display.println("c");
+    if (hTemp != 99)
+    {
+      display.print(hTemp);
+      display.println("c");
+    }
+    else
+      display.println("NC");
 
     display.print("Heater ");
     display.print(hHeater);
