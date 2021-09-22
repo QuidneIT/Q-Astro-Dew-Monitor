@@ -215,7 +215,6 @@ void UpdateDewPower(int DewChannel)
 {
     double Temp = GetSensorTemp(DewChannel);
     double DewPower = 0;
-    Temp=18.00;
 
     if (Temp != 999)
     {
