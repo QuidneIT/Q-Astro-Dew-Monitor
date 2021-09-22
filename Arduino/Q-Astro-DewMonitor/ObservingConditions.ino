@@ -32,10 +32,10 @@ int Pressure;
 int DewHeatersInUse = MAX_DEWHEATERS;
 
 double DewTemp1;
-int    DewPower1;  //In Percentage
+double DewPower1;  //In Percentage
 
 double DewTemp2;
-int    DewPower2;  //In Percentage
+double DewPower2;  //In Percentage
 
 int TempTimer; 
 int DispHeater;
@@ -172,12 +172,12 @@ void UpdateObservingConditionsData()
     if (BME280Error == false)
     {
         sensor1.requestTemperatures(); // Send the command to get temperature readings
-        DewPower1 = UpdateDewPower(1);
+        UpdateDewPower(1);
 
         if (DewHeatersInUse == 2)
         {
             sensor2.requestTemperatures(); // Send the command to get temperature readings
-            DewPower2 = UpdateDewPower(2);
+            UpdateDewPower(2);
         }
         DataAvailable = true;
     }
@@ -211,10 +211,11 @@ double GetSensorTemp(int sensor)
         return 99;
 }
 
-int UpdateDewPower(int DewChannel)
+void UpdateDewPower(int DewChannel)
 {
     double Temp = GetSensorTemp(DewChannel);
-    int DewPower = 0;
+    double DewPower = 0;
+    Temp=18.00;
 
     if (Temp != 999)
     {
@@ -228,15 +229,15 @@ int UpdateDewPower(int DewChannel)
     {
     case 1:
         DewTemp1 = Temp;
+        DewPower1 = (DewPower / MAX_DEWPOWER) * 100;  // Return Power in value of % for GUI.
         analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
         break;
     case 2:
         DewTemp2 = Temp;
+        DewPower2 = (DewPower / MAX_DEWPOWER) * 100;   // Return Power in value of % for GUI.
         analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
         break;
     }
-    
-    return ((DewPower / MAX_DEWPOWER) * 100);    // Return Dew Power in Percentage.
 }
 
 int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)

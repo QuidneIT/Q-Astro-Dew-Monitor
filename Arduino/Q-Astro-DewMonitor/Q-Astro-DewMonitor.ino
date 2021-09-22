@@ -2,7 +2,7 @@
  * Q-Astro Dew Monitor
  *
  * Q-Astro Dew Monitor Code.
- * Version: 3.0.0
+ * Version: 3.0.1
  * 
  * Copyright (c)2020 Quidne IT Ltd.
  * 
@@ -18,7 +18,7 @@
 #include <EEPROM.h>
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v3.0.0"
+#define VERSION "v3.0.1"
 
 #define qastroId 'i'
 #define observingconditionsId 'o'

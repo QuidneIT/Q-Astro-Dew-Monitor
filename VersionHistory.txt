@@ -18,4 +18,5 @@ Date	    Who	Vers	Description
 02/02/2021  RvE 3.0.0	Redesign of Arduino software and ASCOM drivers. More simplification of the code.
 			Change of name for the ASCOM code to Q-Astro Monitor as the system is self managing.
 			First release available on GitHub
+22-09-2021  RvE 3.0.1	Fix problem in Arduino & GUI code as Dew Heater Power was not shown correctly.
 --------------------------------------------------------------------------------

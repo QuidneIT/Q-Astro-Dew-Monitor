@@ -96,9 +96,9 @@ namespace ASCOM.QAstroDew
                 lbDigAltitude.Value = Convert.ToDouble(aObserving.CommandString("a", false));
                 
                 lbDigDewTemp1.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("v", false)));
-                lbDigDewPower1.Value = Convert.ToDouble(aObserving.CommandString("w", false));
+                lbDigDewPower1.Value = Convert.ToDouble(aObserving.CommandString("x", false));
 
-                lbDigDewTemp2.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("x", false)));
+                lbDigDewTemp2.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("w", false)));
                 lbDigDewPower2.Value = Convert.ToDouble(aObserving.CommandString("y", false));
 
                 string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
