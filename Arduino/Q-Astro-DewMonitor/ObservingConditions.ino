@@ -123,7 +123,7 @@ void InitObservingConditions()
 
     bme.begin();
 
-    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData, 0);
+    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
 }
 
 void GetDewHeaterTemp(String cmd)
