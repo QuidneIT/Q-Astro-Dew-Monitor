@@ -4,7 +4,7 @@
  * Q-Astro Dew Monitor Code.
  * Version: 3.0.2
  * 
- * Copyright (c)2020 Quidne IT Ltd.
+ * Copyright (c)2022 Quidne IT Ltd.
  * 
  */
 
