@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------------------------------------------------------*/ 
 /*  Start of ObservingConditions Commands */
 /*
-  Data wire is plugged into pin 24 on the Arduino Mega 
+
   This uses the oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs) 
 
 */
