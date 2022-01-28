@@ -148,7 +148,7 @@ void UpdateData()
     int CurrentTime = millis() / 1000;
     updateTimer.update();
 
-    if (ShowData && DataAvailable)
+    if (ShowData && DataAvailable && (LCDPresent==1))
     {
         if (((CurrentTime - TempTimer) > DISP_UPDATE_INTERVAL) || (CurrentTime < TempTimer))
         {
