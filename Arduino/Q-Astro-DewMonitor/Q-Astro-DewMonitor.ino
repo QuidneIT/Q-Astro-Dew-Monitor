@@ -20,6 +20,8 @@
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
 #define VERSION "v3.0.2"
 
+#define LCDPresent 1    //Change this to 0 if you do not use the LCD display. 
+
 #define qastroId 'i'
 #define observingconditionsId 'o'
 
@@ -32,8 +34,10 @@ int DisplayAlwaysOn = 0;
 void setup() 
 {
   InitSerial();
-  Serial.println("Init OLED");
-  InitOLEDLCD();
+  if (LCDPresent==1) {
+    Serial.println("Init OLED");
+    InitOLEDLCD();
+  }
   Serial.println("Init Dew Monitor");
   InitObservingConditions();
   Serial.println("Ready..");
@@ -57,7 +61,7 @@ void loop() {
     ASCOMcmd = "";
   }
 
-  CheckShowDataButton();
+  if (LCDPresent==1) {CheckShowDataButton();}
 
   UpdateData();
 }
