@@ -7,6 +7,8 @@
   !!!!!!!!!  If Arduino has updated Lib Adafruit_BME280.h, make sure to change the address in that file to 76.
 */
 
+#define BME280_I2C_Address 0x76   // This is the I2C Address of your BME280. This will be either 0x76 or 0x77
+
 #define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
 #define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
 
@@ -45,7 +47,7 @@ Timer updateTimer;
 bool BME280Error = false;
 bool DataAvailable = false;
 
-QAstro_BME280 bme; // I2C
+Adafruit_BME280 bme; // I2C
 
 OneWire tSensor1(PIN_TEMP_SENSOR1);
 OneWire tSensor2(PIN_TEMP_SENSOR2);
@@ -121,7 +123,7 @@ void InitObservingConditions()
     TempTimer = millis() / 1000;  // start time interval for display updates
     DispHeater = 2;             // Which heater to show first on the dispay
 
-    bme.begin();
+    bme.begin(BME280_I2C_Address);
 
     updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
 }
