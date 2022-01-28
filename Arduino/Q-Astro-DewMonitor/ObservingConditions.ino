@@ -4,10 +4,9 @@
   Data wire is plugged into pin 24 on the Arduino Mega 
   This uses the oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs) 
 
-  !!!!!!!!!  If Arduino has updated Lib Adafruit_BME280.h, make sure to change the address in that file to 76.
 */
 
-#define BME280_I2C_Address 0x76   // This is the I2C Address of your BME280. This will be either 0x76 or 0x77
+#define BME280_I2C_Address 0x76   // This is the I2C Address of your BME280. This will either be 0x76 or 0x77
 
 #define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
 #define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
