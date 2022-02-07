@@ -19,4 +19,6 @@ Date	    Who	Vers	Description
 			Change of name for the ASCOM code to Q-Astro Monitor as the system is self managing.
 			First release available on GitHub
 22-09-2021  RvE 3.0.1	Fix problem in Arduino & GUI code as Dew Heater Power was not shown correctly.
+28-01-2022  RvE 3.0.1 & 3.0.2 Arduino	Added Timer library to Required Library folder and remove Q-Astro-BMA library. Updated the Arduino code to fix Timer bug 
+					and to allow for BM280 I2C Address to be defined (See ObservingConditions.ino).
 --------------------------------------------------------------------------------

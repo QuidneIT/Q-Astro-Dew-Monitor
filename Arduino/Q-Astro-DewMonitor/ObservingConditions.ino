@@ -6,7 +6,8 @@
 
 */
 
-#define BME280_I2C_Address 0x76   // This is the I2C Address of your BME280. This will either be 0x76 or 0x77
+#define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
+#define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
 
 #define PIN_TEMP_SENSOR1  2 
 #define PIN_DEW_CHANNEL1  5 
