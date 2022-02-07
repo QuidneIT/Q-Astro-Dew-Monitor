@@ -15,6 +15,7 @@
 #include <Adafruit_Sensor.h>
 #include "QAstro_BME280.h"
 #include "Timer.h"
+//#include <arduino-timer.h>
 #include <EEPROM.h>
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"

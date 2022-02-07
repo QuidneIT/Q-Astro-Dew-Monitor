@@ -15,7 +15,7 @@
 
 #define TEMP_UPDATE_INTERVAL  10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
-#define SEA_LEVEL_PRESSURE_HPA (1013.25)
+#define SEA_LEVEL_PRESSURE_HPA 1028
 #define DEWPOINT_THRESHOLD 5
 #define MIN_DEVICE_TEMP 10			  // This is the min temp that needs the device to be kept at. 
 #define MAX_DEWPOWER 254
@@ -39,6 +39,8 @@ double DewPower2;  //In Percentage
 
 int TempTimer; 
 int DispHeater;
+
+//auto updateTimer = timer_create_default();
 
 Timer updateTimer;
 
@@ -123,7 +125,8 @@ void InitObservingConditions()
 
     bme.begin();
 
-    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData, 0);
+//    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData, 0);
+    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
 }
 
 void GetDewHeaterTemp(String cmd)
@@ -223,7 +226,9 @@ void UpdateDewPower(int DewChannel)
       else
           DewPower = calcDewHeaterPowerSetting(Temp, MIN_DEVICE_TEMP);
     }
-
+    
+    //DewPower = 254;
+    
     switch (DewChannel)
     {
     case 1:
