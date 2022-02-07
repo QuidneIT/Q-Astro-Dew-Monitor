@@ -1,21 +1,22 @@
 /* ----------------------------------------------------------------------------------------------------------------------------*/ 
 /*  Start of ObservingConditions Commands */
 /*
-  Data wire is plugged into pin 24 on the Arduino Mega 
+
   This uses the oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs) 
 
-  !!!!!!!!!  If Arduino has updated Lib Adafruit_BME280.h, make sure to change the address in that file to 76.
 */
 
-#define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
-#define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
+#define BME280_I2C_Address 0x76   // This is the I2C Address of your BME280. This will either be 0x76 or 0x77
 
-#define PIN_TEMP_SENSOR2  2 //Use 3 on board v1.5
-#define PIN_DEW_CHANNEL2  5 // Not changed between boards
+#define PIN_TEMP_SENSOR1  2 
+#define PIN_DEW_CHANNEL1  5 
+
+#define PIN_TEMP_SENSOR2  4 
+#define PIN_DEW_CHANNEL2  3 
 
 #define TEMP_UPDATE_INTERVAL  10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
-#define SEA_LEVEL_PRESSURE_HPA 1028
+#define SEA_LEVEL_PRESSURE_HPA (1013.25)
 #define DEWPOINT_THRESHOLD 5
 #define MIN_DEVICE_TEMP 10			  // This is the min temp that needs the device to be kept at. 
 #define MAX_DEWPOWER 254
@@ -40,14 +41,12 @@ double DewPower2;  //In Percentage
 int TempTimer; 
 int DispHeater;
 
-//auto updateTimer = timer_create_default();
-
 Timer updateTimer;
 
 bool BME280Error = false;
 bool DataAvailable = false;
 
-QAstro_BME280 bme; // I2C
+Adafruit_BME280 bme; // I2C
 
 OneWire tSensor1(PIN_TEMP_SENSOR1);
 OneWire tSensor2(PIN_TEMP_SENSOR2);
@@ -123,9 +122,8 @@ void InitObservingConditions()
     TempTimer = millis() / 1000;  // start time interval for display updates
     DispHeater = 2;             // Which heater to show first on the dispay
 
-    bme.begin();
+    bme.begin(BME280_I2C_Address);
 
-//    updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData, 0);
     updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
 }
 
@@ -150,7 +148,7 @@ void UpdateData()
     int CurrentTime = millis() / 1000;
     updateTimer.update();
 
-    if (ShowData && DataAvailable)
+    if (ShowData && DataAvailable && (LCDPresent==1))
     {
         if (((CurrentTime - TempTimer) > DISP_UPDATE_INTERVAL) || (CurrentTime < TempTimer))
         {
@@ -205,9 +203,6 @@ double GetSensorTemp(int sensor)
     else
         dTemp = sensor2.getTempCByIndex(0);
 
-//    if (dTemp == -127.00)   //If Sensor not connected, return value will be -127. If the case then the dew manager should not do anything.
-//        return 99;
-
     if ((dTemp != -127.00) && (dTemp != 85.00))
         return dTemp;
     else
@@ -226,15 +221,13 @@ void UpdateDewPower(int DewChannel)
       else
           DewPower = calcDewHeaterPowerSetting(Temp, MIN_DEVICE_TEMP);
     }
-    
-    //DewPower = 254;
-    
+
     switch (DewChannel)
     {
     case 1:
         DewTemp1 = Temp;
         DewPower1 = (DewPower / MAX_DEWPOWER) * 100;  // Return Power in value of % for GUI.
-        analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
+         analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
         break;
     case 2:
         DewTemp2 = Temp;

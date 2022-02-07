@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quidne IT Ltd.")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright © 2021, Quidne IT Ltd.")]
+[assembly: AssemblyCopyright("Copyright © 2022, Quidne IT Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.0.1")]
-[assembly: AssemblyFileVersion("3.0.1.0")]
+[assembly: AssemblyVersion("3.0.2")]
+[assembly: AssemblyFileVersion("3.0.2.0")]
 
 [assembly: ComVisibleAttribute(false)]

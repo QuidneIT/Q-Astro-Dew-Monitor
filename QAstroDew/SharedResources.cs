@@ -395,7 +395,9 @@ namespace ASCOM.QAstroDew
             {
                 string response = SendMessage(ASCOMfunction, "z");
                 int iPos = response.IndexOf('#');
-                response = response.Substring(1, iPos - 1); //Start at 1 as 0 contains the Function which will be w.
+                response = response.Substring(1, iPos - 1); //Start at 1 as 0 contains the Function which will be o.
+
+                tl.LogMessage("Q-Astro - Data Received", response);
 
                 if (response.Length > 0)
                     DeconstructData(response);
