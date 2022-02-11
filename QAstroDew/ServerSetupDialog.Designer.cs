@@ -40,8 +40,6 @@
             this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
             this.ComPortComboBox = new MetroFramework.Controls.MetroComboBox();
             this.chkTrace = new MetroFramework.Controls.MetroToggle();
-            this.metroLabel2 = new MetroFramework.Controls.MetroLabel();
-            this.ComboHeaters = new MetroFramework.Controls.MetroComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.SuspendLayout();
@@ -63,7 +61,6 @@
             // 
             // StatusLabel
             // 
-            this.StatusLabel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 2);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(102, 17);
             this.StatusLabel.Text = "ASCOM QA Setup";
@@ -136,14 +133,14 @@
             // 
             // metroLabel1
             // 
-            this.metroLabel1.FontSize = MetroFramework.MetroLabelSize.Tall;
             this.metroLabel1.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel1.Location = new System.Drawing.Point(282, 98);
+            this.metroLabel1.Location = new System.Drawing.Point(157, 98);
             this.metroLabel1.Name = "metroLabel1";
             this.metroLabel1.Size = new System.Drawing.Size(60, 30);
             this.metroLabel1.Style = MetroFramework.MetroColorStyle.Lime;
             this.metroLabel1.TabIndex = 31;
             this.metroLabel1.Text = "Trace:";
+            this.metroLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.metroLabel1.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.metroLabel1.UseStyleColors = true;
             // 
@@ -152,11 +149,11 @@
             this.ComPortComboBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::ASCOM.QAstroDew.Properties.Settings.Default, "COMPort", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.ComPortComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.ComPortComboBox.FormattingEnabled = true;
-            this.ComPortComboBox.ItemHeight = 24;
+            this.ComPortComboBox.ItemHeight = 23;
             this.ComPortComboBox.Location = new System.Drawing.Point(84, 54);
             this.ComPortComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.ComPortComboBox.Name = "ComPortComboBox";
-            this.ComPortComboBox.Size = new System.Drawing.Size(274, 30);
+            this.ComPortComboBox.Size = new System.Drawing.Size(274, 29);
             this.ComPortComboBox.Style = MetroFramework.MetroColorStyle.Lime;
             this.ComPortComboBox.TabIndex = 29;
             this.ComPortComboBox.Text = global::ASCOM.QAstroDew.Properties.Settings.Default.COMPort;
@@ -169,40 +166,15 @@
             this.chkTrace.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.chkTrace.FontSize = MetroFramework.MetroLinkSize.Medium;
             this.chkTrace.FontWeight = MetroFramework.MetroLinkWeight.Bold;
-            this.chkTrace.Location = new System.Drawing.Point(349, 98);
+            this.chkTrace.Location = new System.Drawing.Point(224, 106);
             this.chkTrace.Margin = new System.Windows.Forms.Padding(4);
             this.chkTrace.Name = "chkTrace";
-            this.chkTrace.Size = new System.Drawing.Size(83, 30);
+            this.chkTrace.Size = new System.Drawing.Size(83, 17);
             this.chkTrace.Style = MetroFramework.MetroColorStyle.Lime;
             this.chkTrace.TabIndex = 30;
             this.chkTrace.Text = "Off";
             this.chkTrace.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.chkTrace.UseStyleColors = true;
-            // 
-            // metroLabel2
-            // 
-            this.metroLabel2.FontSize = MetroFramework.MetroLabelSize.Tall;
-            this.metroLabel2.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel2.Location = new System.Drawing.Point(8, 98);
-            this.metroLabel2.Name = "metroLabel2";
-            this.metroLabel2.Size = new System.Drawing.Size(148, 30);
-            this.metroLabel2.Style = MetroFramework.MetroColorStyle.Lime;
-            this.metroLabel2.TabIndex = 32;
-            this.metroLabel2.Text = "Nr of Heaters:";
-            this.metroLabel2.Theme = MetroFramework.MetroThemeStyle.Dark;
-            this.metroLabel2.UseStyleColors = true;
-            // 
-            // ComboHeaters
-            // 
-            this.ComboHeaters.FormattingEnabled = true;
-            this.ComboHeaters.ItemHeight = 24;
-            this.ComboHeaters.Items.AddRange(new object[] {
-            "1",
-            "2"});
-            this.ComboHeaters.Location = new System.Drawing.Point(138, 98);
-            this.ComboHeaters.Name = "ComboHeaters";
-            this.ComboHeaters.Size = new System.Drawing.Size(121, 30);
-            this.ComboHeaters.TabIndex = 33;
             // 
             // ServerSetupDialog
             // 
@@ -210,8 +182,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(444, 226);
-            this.Controls.Add(this.ComboHeaters);
-            this.Controls.Add(this.metroLabel2);
             this.Controls.Add(this.metroLabel1);
             this.Controls.Add(this.ComPortComboBox);
             this.Controls.Add(this.chkTrace);
@@ -247,7 +217,5 @@
         private MetroFramework.Controls.MetroLabel metroLabel1;
         private MetroFramework.Controls.MetroComboBox ComPortComboBox;
         private MetroFramework.Controls.MetroToggle chkTrace;
-        private MetroFramework.Controls.MetroLabel metroLabel2;
-        private MetroFramework.Controls.MetroComboBox ComboHeaters;
     }
 }

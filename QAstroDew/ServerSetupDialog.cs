@@ -12,7 +12,7 @@ namespace ASCOM.QAstroDew
     {
         internal List<COMPortInfo> comPorts;
         internal COMPortInfo comPort;
-        internal ASCOM.Utilities.Serial serPort;
+//        internal ASCOM.Utilities.Serial serPort;
 
         public ServerSetupDialog()
         {
@@ -52,8 +52,6 @@ namespace ASCOM.QAstroDew
                     ComPortComboBox.SelectedItem = Properties.Settings.Default.COMPort;
             }
 
-            if (ComboHeaters.Items.Contains(Properties.Settings.Default.NrDewHeaters))
-                ComboHeaters.SelectedItem = Properties.Settings.Default.NrDewHeaters;
         }
 
         private void ComPortComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -62,6 +60,11 @@ namespace ASCOM.QAstroDew
         }
 
         private void btnTestPrt_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ComboHeaters_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
