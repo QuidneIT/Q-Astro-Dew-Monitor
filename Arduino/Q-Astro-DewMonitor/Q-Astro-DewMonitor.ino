@@ -2,13 +2,14 @@
  * Q-Astro Dew Monitor
  *
  * Q-Astro Dew Monitor Code.
- * Version: 3.0.2
+ * Version: 3.5.0
  * 
  * Copyright (c)2022 Quidne IT Ltd.
  * 
  */
 
 #include <Arduino.h>
+#include <OneWire.h>
 #include <DallasTemperature.h>
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
@@ -18,7 +19,7 @@
 #include <EEPROM.h>
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v3.0.2"
+#define VERSION "v3.5.0"
 
 #define LCDPresent 1    //Change this to 0 if you do not use the LCD display. 
 

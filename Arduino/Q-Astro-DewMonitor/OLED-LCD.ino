@@ -4,7 +4,7 @@
 SSD1306AsciiAvrI2c display; 
 
 #define OLED_RESET 4
-#define I2C_ADDRESS 0x3C
+#define OLED_I2C_ADDRESS 0x3C
 #define PIN_SHOW 12
 
 int val = 0;
@@ -20,9 +20,9 @@ void InitOLEDLCD()
 { 
   // initialize and clear display
   #if OLED_RESET >= 0
-    display.begin(&Adafruit128x64, I2C_ADDRESS, OLED_RESET);
+    display.begin(&Adafruit128x64, OLED_I2C_ADDRESS, OLED_RESET);
   #else // RST_PIN >= 0
-    display.begin(&Adafruit128x64, I2C_ADDRESS);
+    display.begin(&Adafruit128x64, OLED_I2C_ADDRESS);
   #endif // RST_PIN >= 0
   pinMode(PIN_SHOW, INPUT);
   
@@ -39,8 +39,9 @@ void ShowQAstro()
   display.println(VERSION);
   display.println("");
   display.println("by");
-  display.println("");
   display.println("Quidne IT Ltd.");
+  display.println("");
+  display.println("Loading...");
 }
 
 void CheckShowDataButton()

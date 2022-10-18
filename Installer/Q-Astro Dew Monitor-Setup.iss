@@ -14,7 +14,7 @@
 ;#define ReleaseType = "Release"
 #define ReleaseType = "Debug"
 
-#define SourcePath = "C:\Code"
+#define SourcePath = "C:\Users\Raoul\OneDrive - QUIDNE IT LTD"
 
 [Setup]
 AppId={{EF44ADC1-04BD-46A5-8419-EA33F1381022}
@@ -26,7 +26,7 @@ AppPublisherURL=http://www.q-astro.com
 AppSupportURL=mailto:Support@Quidne-IT.com
 AppUpdatesURL=http://www.q-astro.com/
 VersionInfoVersion=1.5.0
-MinVersion=0,5.0.2195sp4
+; MinVersion=0,5.0.2195sp4
 DefaultDirName="{cf}\ASCOM\{#AppName}"
 DisableDirPage=yes
 DisableProgramGroupPage=yes

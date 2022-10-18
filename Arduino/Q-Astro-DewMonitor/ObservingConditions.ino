@@ -2,18 +2,21 @@
 /*  Start of ObservingConditions Commands */
 /*
 
-  This uses the oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs) 
+  This uses the oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+  OneWire can monitor multiple devices via one connection, for the Dew Monitor this will not work as we will not know
+  which temp sensor is associated with which Dew Band.
+  In our case we need to have 2 individual OneWire instances to enable us to diffirentiate between the 2 Dew bands and temp senssors.
 
 */
 
-#define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
-#define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
+//#define PIN_TEMP_SENSOR1  4 //Use 2 on board v1.5
+//#define PIN_DEW_CHANNEL1  3 //Use 6 on board v1.5
 
-#define PIN_TEMP_SENSOR1  2 
-#define PIN_DEW_CHANNEL1  5 
+#define PIN_TEMP_SENSOR1  4 
+#define PIN_DEW_CHANNEL1  3 
 
-#define PIN_TEMP_SENSOR2  4 
-#define PIN_DEW_CHANNEL2  3 
+#define PIN_TEMP_SENSOR2  2 
+#define PIN_DEW_CHANNEL2  5 
 
 #define TEMP_UPDATE_INTERVAL  10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
@@ -21,17 +24,20 @@
 #define DEWPOINT_THRESHOLD 5
 #define MIN_DEVICE_TEMP 10			  // This is the min temp that needs the device to be kept at. 
 #define MAX_DEWPOWER 254
+#define TEMP_PRECISION 9
 
 #define MAX_DEWHEATERS 2
-#define hEEPROMStart 100
+
+#define BME280_I2C_Address (0x76)
+
+#define DEWMONITOR_MODE 0     //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
 
 double ObsTemp;
 double Altitude;
 double DewPoint;
+
 int Humidity;
 int Pressure;
-
-int DewHeatersInUse = MAX_DEWHEATERS;
 
 double DewTemp1;
 double DewPower1;  //In Percentage
@@ -47,6 +53,8 @@ Timer updateTimer;
 bool BME280Error = false;
 bool DataAvailable = false;
 
+int DewMonitorMode = DEWMONITOR_MODE;          // On Startup the Dew Monitor will always run in Automatic Mode.
+
 Adafruit_BME280 bme; // I2C
 
 OneWire tSensor1(PIN_TEMP_SENSOR1);
@@ -61,64 +69,10 @@ DallasTemperature sensor2(&tSensor2);
 /* Start of ObservingConditions functions */
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 
-void DoObservingConditionsAction(String ASCOMcmd)
-{  
-    switch ((char)ASCOMcmd[0])
-    {
-        //Get the temp of a Temp Sensor
-    case 't':
-        SendSerialCommand(observingconditionsId, String(ObsTemp));
-        break;
-
-    case 'h':
-        SendSerialCommand(observingconditionsId, String(Humidity));
-        break;
-
-    case 'd':
-        SendSerialCommand(observingconditionsId, String(DewPoint));
-        break;
-
-    case 'a':
-        SendSerialCommand(observingconditionsId, String(Altitude));
-        break;
-
-    case 'b':
-        SendSerialCommand(observingconditionsId, String(Pressure));
-        break;
-
-    case 'w': //Get DewHeater Temp
-
-        GetDewHeaterTemp(ASCOMcmd);
-        break;
-
-    case 'p': //Get Dew Heater Power
-    
-        GetDewHeaterPower(ASCOMcmd);
-        break;
- 
-    case 'i': //Get Time since last Sensor update (in Sec)
-        SendSerialCommand(observingconditionsId, String(((millis() / 1000) - TempTimer)));
-        break;
-
-    case 'z':   //return all data in a single string
-        returnAllData();
-        break;
-
-    case 's':   //Set Number of Dew Heaters in Use (Max is 2)
-        EEPROMWriteInt(hEEPROMStart, ASCOMcmd.substring(1,1).toInt());
-        DewHeatersInUse = EEPROMReadInt(hEEPROMStart);
-        break;
-    }
-}
-
 void InitObservingConditions()
 {
-    pinMode(PIN_DEW_CHANNEL1, OUTPUT);            // pwm outputs for dew straps
-    pinMode(PIN_DEW_CHANNEL2, OUTPUT);            // pwm outputs for dew straps
-
-    int memNrOfDewHeaters = EEPROMReadInt(hEEPROMStart);
-    if ((memNrOfDewHeaters == 1) || (memNrOfDewHeaters == 2))
-        DewHeatersInUse = memNrOfDewHeaters;
+    InitDewChannel1();
+    InitDewChannel2();
 
     TempTimer = millis() / 1000;  // start time interval for display updates
     DispHeater = 2;             // Which heater to show first on the dispay
@@ -128,20 +82,20 @@ void InitObservingConditions()
     updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
 }
 
-void GetDewHeaterTemp(String cmd)
+void InitDewChannel1()
 {
-    if (cmd[1] == '1')
-        SendSerialCommand(observingconditionsId, String(DewTemp1));
-    else if (DewHeatersInUse > 1)
-        SendSerialCommand(observingconditionsId, String(DewTemp2));
+    pinMode(PIN_DEW_CHANNEL1, OUTPUT);            // pwm outputs for dew straps
+    sensor1.begin();
+    sensor1.setResolution(TEMP_PRECISION);
+    sensor1.requestTemperatures();                // Send the command to get temperature readings
 }
 
-void GetDewHeaterPower(String cmd)
+void InitDewChannel2()
 {
-    if (cmd[1] == '1')
-        SendSerialCommand(observingconditionsId, String(DewPower1));
-    else if (DewHeatersInUse > 1)
-        SendSerialCommand(observingconditionsId, String(DewPower2));
+    pinMode(PIN_DEW_CHANNEL2, OUTPUT);            // pwm outputs for dew straps  
+    sensor2.begin();
+    sensor2.setResolution(TEMP_PRECISION);
+    sensor2.requestTemperatures();                // Send the command to get temperature readings
 }
 
 void UpdateData()
@@ -155,10 +109,7 @@ void UpdateData()
         {
             TempTimer = CurrentTime;     // update the timestamp
             
-            if (DewHeatersInUse == 2)
-              DetermineDewHeatertoDisplay();
-            else
-              DispHeater == 1;
+            DetermineDewHeatertoDisplay();
 
             if (DispHeater == 1)
                 WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewTemp1, DewPower1);
@@ -170,21 +121,31 @@ void UpdateData()
 
 void UpdateObservingConditionsData()
 {
+    DataAvailable = true;
+
     BME280Error = GetBMEData();
-    if (BME280Error == false)
+
+    if (DewMonitorMode == 1)      // If Dew Monitor in Manual Mode
     {
         sensor1.requestTemperatures(); // Send the command to get temperature readings
-        UpdateDewPower(1);
-
-        if (DewHeatersInUse == 2)
-        {
-            sensor2.requestTemperatures(); // Send the command to get temperature readings
-            UpdateDewPower(2);
-        }
-        DataAvailable = true;
+        UpdateManualDewPower(1);
+      
+        sensor2.requestTemperatures(); // Send the command to get temperature readings
+        UpdateManualDewPower(2);
     }
     else
-      DataAvailable = false;
+    {   
+        if (BME280Error == false)  // If there is BME data and in Dew Monitor in Automatic Mode
+        {
+            sensor1.requestTemperatures(); // Send the command to get temperature readings
+            UpdateAutoDewPower(1);
+
+            sensor2.requestTemperatures(); // Send the command to get temperature readings
+            UpdateAutoDewPower(2);
+      }
+      else
+          DataAvailable = false;
+    }
 }
 
 void DetermineDewHeatertoDisplay()
@@ -204,18 +165,18 @@ double GetSensorTemp(int sensor)
     else
         dTemp = sensor2.getTempCByIndex(0);
 
-    if ((dTemp != -127.00) && (dTemp != 85.00))
-        return dTemp;
-    else
-        return 99;
+    if (dTemp == DEVICE_DISCONNECTED_C)
+      return 99;
+    else 
+      return dTemp;
 }
 
-void UpdateDewPower(int DewChannel)
+void UpdateAutoDewPower(int DewChannel)
 {
     double Temp = GetSensorTemp(DewChannel);
     double DewPower = 0;
 
-    if (Temp != 999)
+    if (Temp != 99)
     {
       if (Temp > MIN_DEVICE_TEMP)
           DewPower = calcDewHeaterPowerSetting(Temp, DewPoint);
@@ -228,14 +189,37 @@ void UpdateDewPower(int DewChannel)
     case 1:
         DewTemp1 = Temp;
         DewPower1 = (DewPower / MAX_DEWPOWER) * 100;  // Return Power in value of % for GUI.
-         analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
+        analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
+        
         break;
     case 2:
         DewTemp2 = Temp;
         DewPower2 = (DewPower / MAX_DEWPOWER) * 100;   // Return Power in value of % for GUI.
         analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
+        
         break;
     }
+}
+
+void UpdateManualDewPower(int DewChannel)   // DewPower is in percentage
+{
+  double Temp = GetSensorTemp(DewChannel);
+  int DewPower = 0;
+
+  switch (DewChannel)
+  {
+    case 1:
+      DewTemp1 = Temp;
+      DewPower = round(MAX_DEWPOWER * (DewPower1 / 100));
+      analogWrite(PIN_DEW_CHANNEL1, DewPower);   // set the PWM value to be 0-254    
+      break;
+
+    case 2:
+      DewTemp2 = Temp;
+      DewPower = round(MAX_DEWPOWER * (DewPower2 / 100));
+      analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
+      break;
+  }
 }
 
 int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
@@ -282,10 +266,95 @@ boolean GetBMEData()
     }
 
     if (isnan(DewPoint))
-    {
         DewPoint = 0;
-    }
+
     return anError;
+}
+
+void DoObservingConditionsAction(String ASCOMcmd)
+{  
+    switch ((char)ASCOMcmd[0])
+    {
+    case 'a': //Get the current Altitude 
+        SendSerialCommand(observingconditionsId, String(Altitude));
+        break;
+
+    case 'b': //Get the current Pressure
+        SendSerialCommand(observingconditionsId, String(Pressure));
+        break;
+
+    case 'd': //Get the current Dew Point
+        SendSerialCommand(observingconditionsId, String(DewPoint));
+        break;
+    
+    case 'h': //Get the current Humidity
+        SendSerialCommand(observingconditionsId, String(Humidity));
+        break;
+
+     case 'i': //Get Time since last Sensor update (in Sec)
+        SendSerialCommand(observingconditionsId, String(((millis() / 1000) - TempTimer)));
+        break;
+
+    case 'm': //Set Dew Monitor Mode (Manual or Auto)
+        SetDewMonitorMode(ASCOMcmd);
+        break;
+
+    case 'n': //Get Dew Monitor Mode (Manual or Auto)
+        SendSerialCommand(observingconditionsId, String(DewMonitorMode));
+
+    case 'o': //Set Power on Channel when running in Manual Mode
+        SetDewPower(ASCOMcmd);
+        break;
+
+    case 'p': //Get Dew Heater Power    
+        GetDewHeaterPower(ASCOMcmd);
+        break;
+ 
+    case 't': //Get the temp of a Temp Sensor
+        SendSerialCommand(observingconditionsId, String(ObsTemp));
+        break;
+
+    case 'w': //Get DewHeater Temp
+        GetDewHeaterTemp(ASCOMcmd);
+        break;
+
+    case 'z': //Return all data in a single string
+        returnAllData();
+        break;
+    }
+}
+
+void GetDewHeaterTemp(String cmd)
+{
+    if (cmd[1] == '1')
+        SendSerialCommand(observingconditionsId, String(DewTemp1));
+    else
+        SendSerialCommand(observingconditionsId, String(DewTemp2));
+}
+
+void GetDewHeaterPower(String cmd)
+{
+    if (cmd[1] == '1')
+        SendSerialCommand(observingconditionsId, String(DewPower1));
+    else
+        SendSerialCommand(observingconditionsId, String(DewPower2));
+}
+
+void SetDewMonitorMode(String cmd)
+{
+    if (cmd[1] == '1')    // Set Dew Monitor to Manual
+      DewMonitorMode = 1;
+    else    
+      DewMonitorMode = 0;
+}
+
+void SetDewPower(String cmd)
+{
+    int DewPower = cmd.substring(2).toInt();
+    if (cmd[1] == '1')
+      DewPower1 = DewPower;
+    else
+      DewPower2 = DewPower;
 }
 
 void returnAllData()
