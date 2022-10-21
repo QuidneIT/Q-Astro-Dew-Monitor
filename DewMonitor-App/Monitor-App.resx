@@ -121,7 +121,7 @@
   <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAu
-        IwAALiMBeKU/dgAADg9JREFUWEe1WAl0VNUZfiSELZnM5Hha6zk1kGSyTGZPQK24L1VEj1YRWyo9lB49
+        IgAALiIBquLdkgAADg9JREFUWEe1WAl0VNUZfiSELZnM5Hha6zk1kGSyTGZPQK24L1VEj1YRWyo9lB49
         x1YrCNnINplJAqKNIesQlUUQQREFzDaZSUESwCqLiAubyFZ2DESSzLxZ+v3/fRO2YOk59M+b+967797/
         /+53//vf/0YKsQTF7QoZoD7YLwH8BQNUEQgE/CiCwRBVQUQr6i80XE3/laIAunYh1WwQcPwhIBEIIIQu
         iJqgH59EI9FFkWsCFRwYkLCKUvkpI75EwIks+32yFxf9ZNkn+2W/Hz8iiyGx8J2oU2qEdrYzgFyVIe4V
@@ -224,8 +224,11 @@
   <metadata name="timerUI.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="trackerUpdateTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>109, 17</value>
+  </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>57</value>
+    <value>70</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

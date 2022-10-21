@@ -33,7 +33,6 @@
             this.btnQAConnect = new MetroFramework.Controls.MetroButton();
             this.btnQASetup = new MetroFramework.Controls.MetroButton();
             this.lbltxtAstroStatus = new MetroFramework.Controls.MetroLabel();
-            this.lblQAStatus = new MetroFramework.Controls.MetroLabel();
             this.metroLabel3 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -78,17 +77,36 @@
             this.lbDigHumidity = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
             this.lbDigDewPoint = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
             this.lblAbout = new System.Windows.Forms.Label();
+            this.pnlSetManual = new System.Windows.Forms.Panel();
+            this.lbl0 = new System.Windows.Forms.Label();
+            this.lbl50 = new System.Windows.Forms.Label();
+            this.lbl100 = new System.Windows.Forms.Label();
+            this.lblDew2 = new System.Windows.Forms.Label();
+            this.lblDewPower2 = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
+            this.trackBarDew2 = new System.Windows.Forms.TrackBar();
+            this.lblDew1 = new System.Windows.Forms.Label();
+            this.lblDewPower1 = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
+            this.trackBarDew1 = new System.Windows.Forms.TrackBar();
+            this.pnlManual = new System.Windows.Forms.Panel();
+            this.lblManual = new System.Windows.Forms.Label();
+            this.tglDewManual = new MetroFramework.Controls.MetroToggle();
+            this.lblStatus = new MetroFramework.Controls.MetroLabel();
+            this.trackerUpdateTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlSetup.SuspendLayout();
             this.pnlDewHeaters.SuspendLayout();
             this.pnlObserving.SuspendLayout();
+            this.pnlSetManual.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDew2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDew1)).BeginInit();
+            this.pnlManual.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnQAConnect
             // 
             this.btnQAConnect.Highlight = true;
-            this.btnQAConnect.Location = new System.Drawing.Point(179, 45);
+            this.btnQAConnect.Location = new System.Drawing.Point(253, 45);
             this.btnQAConnect.Name = "btnQAConnect";
             this.btnQAConnect.Size = new System.Drawing.Size(96, 35);
             this.btnQAConnect.Style = MetroFramework.MetroColorStyle.Lime;
@@ -100,7 +118,7 @@
             // btnQASetup
             // 
             this.btnQASetup.Highlight = true;
-            this.btnQASetup.Location = new System.Drawing.Point(42, 45);
+            this.btnQASetup.Location = new System.Drawing.Point(107, 45);
             this.btnQASetup.Name = "btnQASetup";
             this.btnQASetup.Size = new System.Drawing.Size(99, 35);
             this.btnQASetup.Style = MetroFramework.MetroColorStyle.Lime;
@@ -121,19 +139,6 @@
             this.lbltxtAstroStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbltxtAstroStatus.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.lbltxtAstroStatus.UseStyleColors = true;
-            // 
-            // lblQAStatus
-            // 
-            this.lblQAStatus.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.lblQAStatus.Location = new System.Drawing.Point(70, 547);
-            this.lblQAStatus.Name = "lblQAStatus";
-            this.lblQAStatus.Size = new System.Drawing.Size(305, 22);
-            this.lblQAStatus.Style = MetroFramework.MetroColorStyle.Lime;
-            this.lblQAStatus.TabIndex = 2;
-            this.lblQAStatus.Text = "Disconnected";
-            this.lblQAStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblQAStatus.Theme = MetroFramework.MetroThemeStyle.Dark;
-            this.lblQAStatus.UseStyleColors = true;
             // 
             // metroLabel3
             // 
@@ -187,7 +192,7 @@
             // lblMinimize
             // 
             this.lblMinimize.AutoSize = true;
-            this.lblMinimize.Location = new System.Drawing.Point(336, 6);
+            this.lblMinimize.Location = new System.Drawing.Point(497, 6);
             this.lblMinimize.Name = "lblMinimize";
             this.lblMinimize.Size = new System.Drawing.Size(12, 13);
             this.lblMinimize.TabIndex = 21;
@@ -197,7 +202,7 @@
             // lblClose
             // 
             this.lblClose.AutoSize = true;
-            this.lblClose.Location = new System.Drawing.Point(355, 6);
+            this.lblClose.Location = new System.Drawing.Point(515, 6);
             this.lblClose.Name = "lblClose";
             this.lblClose.Size = new System.Drawing.Size(15, 13);
             this.lblClose.TabIndex = 22;
@@ -233,16 +238,16 @@
             this.pnlSetup.Controls.Add(this.btnQAConnect);
             this.pnlSetup.Location = new System.Drawing.Point(70, 35);
             this.pnlSetup.Name = "pnlSetup";
-            this.pnlSetup.Size = new System.Drawing.Size(305, 98);
+            this.pnlSetup.Size = new System.Drawing.Size(460, 98);
             this.pnlSetup.TabIndex = 54;
             // 
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Verdana", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Red;
-            this.label1.Location = new System.Drawing.Point(7, 0);
+            this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(296, 25);
+            this.label1.Size = new System.Drawing.Size(452, 25);
             this.label1.TabIndex = 5;
             this.label1.Text = "Q-Astro Dew Monitor";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -684,23 +689,210 @@
             // lblAbout
             // 
             this.lblAbout.AutoSize = true;
-            this.lblAbout.Location = new System.Drawing.Point(313, 6);
+            this.lblAbout.Location = new System.Drawing.Point(478, 6);
             this.lblAbout.Name = "lblAbout";
             this.lblAbout.Size = new System.Drawing.Size(13, 13);
             this.lblAbout.TabIndex = 57;
             this.lblAbout.Text = "?";
             this.lblAbout.Click += new System.EventHandler(this.lblAbout_Click);
             // 
-            // ManagerApp
+            // pnlSetManual
+            // 
+            this.pnlSetManual.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlSetManual.Controls.Add(this.lbl0);
+            this.pnlSetManual.Controls.Add(this.lbl50);
+            this.pnlSetManual.Controls.Add(this.lbl100);
+            this.pnlSetManual.Controls.Add(this.lblDew2);
+            this.pnlSetManual.Controls.Add(this.lblDewPower2);
+            this.pnlSetManual.Controls.Add(this.trackBarDew2);
+            this.pnlSetManual.Controls.Add(this.lblDew1);
+            this.pnlSetManual.Controls.Add(this.lblDewPower1);
+            this.pnlSetManual.Controls.Add(this.trackBarDew1);
+            this.pnlSetManual.Location = new System.Drawing.Point(380, 226);
+            this.pnlSetManual.Name = "pnlSetManual";
+            this.pnlSetManual.Size = new System.Drawing.Size(150, 316);
+            this.pnlSetManual.TabIndex = 58;
+            // 
+            // lbl0
+            // 
+            this.lbl0.BackColor = System.Drawing.Color.Black;
+            this.lbl0.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl0.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lbl0.Location = new System.Drawing.Point(44, 218);
+            this.lbl0.Name = "lbl0";
+            this.lbl0.Size = new System.Drawing.Size(55, 27);
+            this.lbl0.TabIndex = 62;
+            this.lbl0.Text = "0%";
+            this.lbl0.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lbl50
+            // 
+            this.lbl50.BackColor = System.Drawing.Color.Black;
+            this.lbl50.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl50.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lbl50.Location = new System.Drawing.Point(44, 116);
+            this.lbl50.Name = "lbl50";
+            this.lbl50.Size = new System.Drawing.Size(55, 27);
+            this.lbl50.TabIndex = 61;
+            this.lbl50.Text = "50%";
+            this.lbl50.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lbl100
+            // 
+            this.lbl100.BackColor = System.Drawing.Color.Black;
+            this.lbl100.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl100.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lbl100.Location = new System.Drawing.Point(44, 10);
+            this.lbl100.Name = "lbl100";
+            this.lbl100.Size = new System.Drawing.Size(55, 27);
+            this.lbl100.TabIndex = 60;
+            this.lbl100.Text = "100%";
+            this.lbl100.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblDew2
+            // 
+            this.lblDew2.BackColor = System.Drawing.Color.Black;
+            this.lblDew2.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDew2.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblDew2.Location = new System.Drawing.Point(79, 285);
+            this.lblDew2.Name = "lblDew2";
+            this.lblDew2.Size = new System.Drawing.Size(62, 27);
+            this.lblDew2.TabIndex = 58;
+            this.lblDew2.Text = "Dew 2";
+            this.lblDew2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblDewPower2
+            // 
+            this.lblDewPower2.BackColor = System.Drawing.Color.Black;
+            this.lblDewPower2.ForeColor = System.Drawing.Color.Red;
+            this.lblDewPower2.Format = "000";
+            this.lblDewPower2.Location = new System.Drawing.Point(80, 254);
+            this.lblDewPower2.Margin = new System.Windows.Forms.Padding(4);
+            this.lblDewPower2.Name = "lblDewPower2";
+            this.lblDewPower2.Renderer = null;
+            this.lblDewPower2.Signed = false;
+            this.lblDewPower2.Size = new System.Drawing.Size(61, 27);
+            this.lblDewPower2.TabIndex = 57;
+            this.lblDewPower2.Value = 0D;
+            // 
+            // trackBarDew2
+            // 
+            this.trackBarDew2.LargeChange = 10;
+            this.trackBarDew2.Location = new System.Drawing.Point(96, 10);
+            this.trackBarDew2.Maximum = 100;
+            this.trackBarDew2.Name = "trackBarDew2";
+            this.trackBarDew2.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBarDew2.Size = new System.Drawing.Size(45, 235);
+            this.trackBarDew2.SmallChange = 10;
+            this.trackBarDew2.TabIndex = 56;
+            this.trackBarDew2.TickFrequency = 10;
+            this.trackBarDew2.Scroll += new System.EventHandler(this.trackBarDew2_Scroll);
+            this.trackBarDew2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBarDew2_MouseUp);
+            // 
+            // lblDew1
+            // 
+            this.lblDew1.BackColor = System.Drawing.Color.Black;
+            this.lblDew1.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDew1.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblDew1.Location = new System.Drawing.Point(8, 285);
+            this.lblDew1.Name = "lblDew1";
+            this.lblDew1.Size = new System.Drawing.Size(62, 27);
+            this.lblDew1.TabIndex = 55;
+            this.lblDew1.Text = "Dew 1";
+            this.lblDew1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblDewPower1
+            // 
+            this.lblDewPower1.BackColor = System.Drawing.Color.Black;
+            this.lblDewPower1.ForeColor = System.Drawing.Color.Red;
+            this.lblDewPower1.Format = "000";
+            this.lblDewPower1.Location = new System.Drawing.Point(9, 254);
+            this.lblDewPower1.Margin = new System.Windows.Forms.Padding(4);
+            this.lblDewPower1.Name = "lblDewPower1";
+            this.lblDewPower1.Renderer = null;
+            this.lblDewPower1.Signed = false;
+            this.lblDewPower1.Size = new System.Drawing.Size(61, 27);
+            this.lblDewPower1.TabIndex = 51;
+            this.lblDewPower1.Value = 0D;
+            // 
+            // trackBarDew1
+            // 
+            this.trackBarDew1.LargeChange = 10;
+            this.trackBarDew1.Location = new System.Drawing.Point(17, 12);
+            this.trackBarDew1.Maximum = 100;
+            this.trackBarDew1.Name = "trackBarDew1";
+            this.trackBarDew1.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBarDew1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.trackBarDew1.Size = new System.Drawing.Size(45, 235);
+            this.trackBarDew1.SmallChange = 10;
+            this.trackBarDew1.TabIndex = 2;
+            this.trackBarDew1.TickFrequency = 10;
+            this.trackBarDew1.Scroll += new System.EventHandler(this.trackBarDew1_Scroll);
+            this.trackBarDew1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBarDew1_MouseUp);
+            // 
+            // pnlManual
+            // 
+            this.pnlManual.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlManual.Controls.Add(this.lblManual);
+            this.pnlManual.Controls.Add(this.tglDewManual);
+            this.pnlManual.Location = new System.Drawing.Point(380, 139);
+            this.pnlManual.Name = "pnlManual";
+            this.pnlManual.Size = new System.Drawing.Size(150, 82);
+            this.pnlManual.TabIndex = 60;
+            // 
+            // lblManual
+            // 
+            this.lblManual.BackColor = System.Drawing.Color.Black;
+            this.lblManual.Font = new System.Drawing.Font("Verdana", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblManual.ForeColor = System.Drawing.Color.Red;
+            this.lblManual.Location = new System.Drawing.Point(3, 7);
+            this.lblManual.Name = "lblManual";
+            this.lblManual.Size = new System.Drawing.Size(143, 28);
+            this.lblManual.TabIndex = 61;
+            this.lblManual.Text = "Manual Dew";
+            this.lblManual.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // tglDewManual
+            // 
+            this.tglDewManual.AutoSize = true;
+            this.tglDewManual.Location = new System.Drawing.Point(35, 43);
+            this.tglDewManual.Name = "tglDewManual";
+            this.tglDewManual.Size = new System.Drawing.Size(80, 17);
+            this.tglDewManual.TabIndex = 60;
+            this.tglDewManual.Text = "Off";
+            this.tglDewManual.UseVisualStyleBackColor = true;
+            this.tglDewManual.CheckedChanged += new System.EventHandler(this.tglDewManual_CheckedChanged);
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.FontWeight = MetroFramework.MetroLabelWeight.Regular;
+            this.lblStatus.Location = new System.Drawing.Point(70, 546);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(460, 22);
+            this.lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+            this.lblStatus.TabIndex = 2;
+            this.lblStatus.Text = "Disconnected";
+            this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblStatus.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.lblStatus.UseStyleColors = true;
+            // 
+            // trackerUpdateTimer
+            // 
+            this.trackerUpdateTimer.Interval = 1000;
+            this.trackerUpdateTimer.Tick += new System.EventHandler(this.trackerUpdateTimer_Tick);
+            // 
+            // MonitorApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(382, 573);
+            this.ClientSize = new System.Drawing.Size(539, 576);
+            this.Controls.Add(this.pnlManual);
+            this.Controls.Add(this.pnlSetManual);
             this.Controls.Add(this.lblAbout);
             this.Controls.Add(this.lblMinimize);
             this.Controls.Add(this.lblCaption);
-            this.Controls.Add(this.lblQAStatus);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblClose);
             this.Controls.Add(this.lbltxtAstroStatus);
             this.Controls.Add(this.pnlObserving);
@@ -713,7 +905,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "ManagerApp";
+            this.Name = "MonitorApp";
             this.Text = "Q-Astro Environment";
             this.TransparencyKey = System.Drawing.Color.Pink;
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormMain_MouseDown);
@@ -724,6 +916,12 @@
             this.pnlSetup.ResumeLayout(false);
             this.pnlDewHeaters.ResumeLayout(false);
             this.pnlObserving.ResumeLayout(false);
+            this.pnlSetManual.ResumeLayout(false);
+            this.pnlSetManual.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDew2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDew1)).EndInit();
+            this.pnlManual.ResumeLayout(false);
+            this.pnlManual.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -731,7 +929,6 @@
 
         #endregion
         private MetroFramework.Controls.MetroLabel lbltxtAstroStatus;
-        private MetroFramework.Controls.MetroLabel lblQAStatus;
         private MetroFramework.Controls.MetroLabel metroLabel3;
         private MetroFramework.Controls.MetroLabel metroLabel1;
         private MetroFramework.Controls.MetroButton btnQAConnect;
@@ -778,6 +975,21 @@
         private System.Windows.Forms.Label label19;
         private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lbDigAltitude;
         private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Panel pnlSetManual;
+        private System.Windows.Forms.Label lblDew1;
+        private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lblDewPower1;
+        private System.Windows.Forms.TrackBar trackBarDew1;
+        private System.Windows.Forms.Label lblDew2;
+        private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lblDewPower2;
+        private System.Windows.Forms.TrackBar trackBarDew2;
+        private System.Windows.Forms.Label lbl0;
+        private System.Windows.Forms.Label lbl50;
+        private System.Windows.Forms.Label lbl100;
+        private System.Windows.Forms.Panel pnlManual;
+        private System.Windows.Forms.Label lblManual;
+        private MetroFramework.Controls.MetroToggle tglDewManual;
+        private MetroFramework.Controls.MetroLabel lblStatus;
+        private System.Windows.Forms.Timer trackerUpdateTimer;
     }
 }
 

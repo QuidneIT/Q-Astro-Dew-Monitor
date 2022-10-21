@@ -73,11 +73,15 @@ void switchoffDisplay()
   display.clear();
 }
 
-void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, int hPower)
+void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, int hPower, int hManual)
 {
     display.setFont(System5x7);
     display.clear();
-    display.println("Collected Data");
+    if (hManual == 0)
+      display.println("Collected Data");
+    else 
+      display.println("Collected Data (M)");
+
     display.println("");
   
     display.print("Sky Temp:     ");

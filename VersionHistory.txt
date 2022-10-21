@@ -25,4 +25,9 @@ Date	    Who	Vers	Description
 				Using latest Libraries.
 				Added base code for future function to set the Dew Monitor in manual mode which will enable you to set the dew band power manually
 				Overal code cleanup where possible
+21-10-2022	RvE 4.0.0	Updated the IU to incorporate the new function to manual set the Dew Power on the Dew Bands.
+				Code made more resilient to errors.
+				Added more status updates.
+				
+FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

@@ -20,6 +20,7 @@ using ASCOM;
 using ASCOM.Utilities;
 using System.Windows.Forms;
 using System.Timers;
+using System.Diagnostics.PerformanceData;
 
 namespace ASCOM.QAstroDew
 {
@@ -58,6 +59,10 @@ namespace ASCOM.QAstroDew
         private static string pDewPower1 = "";
         private static string pDewPower2 = "";
         private static string pLastUpdateTime = "";
+        private static string pDewModeManual = "0";       // false = Automatic, true = Manual 
+        
+        private static bool pDewPowerChanged = false;
+        private static bool pDewModeChanged = false;
 
         public static string ObsTemp
         { get { return pObsTemp; } }
@@ -81,13 +86,45 @@ namespace ASCOM.QAstroDew
         { get { return pDewTemp2; } }
 
         public static string DewPower1
-        { get { return pDewPower1; } }
+        { get { return pDewPower1; }
+            set
+            {
+                if (value != pDewPower1)
+                {
+                    pDewPower1 = value;
+                    pDewPowerChanged = true;
+                }
+
+            }
+        }
 
         public static string DewPower2
-        { get { return pDewPower2; } }
+        {
+            get { return pDewPower2; }
+            set
+            {
+                if (value != pDewPower2)
+                {
+                    pDewPower2 = value;
+                    pDewPowerChanged = true;
+                }
+            }
+        }
 
         public static string LastUpdateTime
         {  get { return pLastUpdateTime; } }
+
+        public static string DewModeManual  //Dew Mode Automatic = 0, Manual = 1
+        { 
+            get { return pDewModeManual; }
+            set {
+                if (value != pDewModeManual)
+                {
+                    pDewModeManual = value;
+                    pDewModeChanged = true;
+                }
+            }
+        }
 
         //
         // Public access to shared resources
@@ -213,7 +250,7 @@ namespace ASCOM.QAstroDew
                                     else
                                     {
                                         SharedSerial.Connected = true;
-                                        GetData();
+                                        GetSetData();
                                         InitialiseTimer();
                                         timerAstro.Start();
                                     }
@@ -343,8 +380,8 @@ namespace ASCOM.QAstroDew
                 {
                     return answer.Substring(2).Trim();
                 }
-
             }
+
             catch (System.TimeoutException e)
             {
                 tl.LogMessage("Q-Astro Dew Timeout exception", e.Message);
@@ -384,10 +421,33 @@ namespace ASCOM.QAstroDew
 
         private static void timerAstro_Tick(Object source, ElapsedEventArgs e)
         {
+            GetSetData();
+        }
+
+        private static void GetSetData()
+        {
+            if (pDewModeChanged) ChangeDewMode();           // Only change Dew Monitor Mode is a change has been made.
+            if (pDewPowerChanged) SetData();                // Only change the Power on the Dew Bands if a change as been made.
             GetData();
         }
 
         #endregion
+
+        // Change the mode of the Dew Monitor from Auto to Manual and back.
+        private static void ChangeDewMode()
+        {
+            pDewModeChanged = false;
+            string response = SendMessage(ASCOMfunction, "m" + pDewModeManual);
+        }
+
+        //The only data that can be set on a Dew Monitor is the Dew Band Power when the Dew Monitor is switched to Manual.
+        private static void SetData()
+        {
+            string response = "";
+            pDewPowerChanged = false;
+            response = SendMessage(ASCOMfunction, "o1" + pDewPower1);
+            response = SendMessage(ASCOMfunction, "o2" + pDewPower2);
+        }
 
         private static void GetData()
         {
@@ -414,35 +474,38 @@ namespace ASCOM.QAstroDew
 
                 switch (meteo[0])
                 {
-                    case 't':       //Observatory Temp
-                        pObsTemp = item;
-                        break;
                     case 'a':       //Altitude
                         pAltitude = item;
                         break;
                     case 'd':       //Dew Point
                         pDewPoint = item;
                         break;
+                    case 'e':       //Dew Band Temp
+                        if (item[0] == '1')
+                            pDewTemp1 = item.Substring(1);
+                        else
+                            pDewTemp2 = item.Substring(1);
+                        break;
                     case 'h':       //Humidity
                         pHumidity = item;
+                        break;
+                    case 'i':       //Last Update Time
+                        pLastUpdateTime = item;
+                        break;
+                    case 'm':       //Dew Monitor Manual or Automatic. 0 = Automatic, 1 = Manual
+                        pDewModeManual = item;
                         break;
                     case 'p':       //Pressure
                         pPressure = item;
                         break;
-                    case 'v':       //Temp of Dew band 1
-                        pDewTemp1 = item;
+                    case 'o':       //Dew Band Power
+                        if (item[0] == '1')
+                            pDewPower1 = item.Substring(1);
+                        else
+                            pDewPower2 = item.Substring(1);
                         break;
-                    case 'w':       //Temp of Dew band 2
-                        pDewTemp2 = item;
-                        break;
-                    case 'x':       //Power set on Dew band 1
-                        pDewPower1 = item;
-                        break;
-                    case 'y':       //Power set on Dew band 2
-                        pDewPower2 = item;
-                        break;
-                    case 'i':       //Last Update Time
-                        pLastUpdateTime = item;
+                    case 't':       //Observatory Temp
+                        pObsTemp = item;
                         break;
                 }
             }

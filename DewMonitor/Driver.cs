@@ -129,22 +129,38 @@ namespace ASCOM.QAstroDew
         {
             string response = "";
             CheckConnected("CommandString");
-            switch (command)
+            switch (command[0])
             {
-                case "a":
+                case 'a':
                     response = SharedResources.Altitude;
                     break;
-                case "v":
-                    response = SharedResources.DewTemp1;
+                case 'm':
+                    if (command.Length > 1)
+                        SharedResources.DewModeManual = command.Substring(1);
+                    else
+                        response = SharedResources.DewModeManual;
                     break;
-                case "w":
-                    response = SharedResources.DewTemp2;
+                case 'o':
+                    if (command.Length > 2)
+                    {
+                        if (command[1] == '1')
+                            SharedResources.DewPower1 = command.Substring(2);
+                        else
+                            SharedResources.DewPower2 = command.Substring(2);
+                    }
+                    else
+                    {
+                        if (command[1] == '1')
+                            response = SharedResources.DewPower1;
+                        else
+                            response = SharedResources.DewPower2;
+                    }
                     break;
-                case "x":
-                    response = SharedResources.DewPower1;
-                    break;
-                case "y":
-                    response = SharedResources.DewPower2;
+                case 'e':
+                    if (command[1] == '1')
+                        response = SharedResources.DewTemp1;
+                    else
+                        response = SharedResources.DewTemp2;
                     break;
             }
             return response;
@@ -596,7 +612,7 @@ namespace ASCOM.QAstroDew
         /// <summary>
         /// Returns true if there is a valid connection to the driver hardware
         /// </summary>
-        private bool IsConnected
+      private bool IsConnected
         {
             get
             {
@@ -604,7 +620,7 @@ namespace ASCOM.QAstroDew
                 return connectedState;
             }
         }
-
+ 
         /// <summary>
         /// Use this function to throw an exception if we aren't connected to the hardware
         /// </summary>
