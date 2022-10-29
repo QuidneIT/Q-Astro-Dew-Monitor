@@ -16,18 +16,19 @@ Date	    Who	Vers	Description
 04/12/2019  RvE 2.0.1	Resolve setup bug when using the Dew Management App
 21/01/2020  RvE 2.1.0	Show Pressure in hPa in UI
 02/02/2021  RvE 3.0.0	Redesign of Arduino software and ASCOM drivers. More simplification of the code.
-				Change of name for the ASCOM code to Q-Astro Monitor as the system is self managing.
-				First release available on GitHub
+						Change of name for the ASCOM code to Q-Astro Monitor as the system is self managing.
+						First release available on GitHub
 22-09-2021  RvE 3.0.1	Fix problem in Arduino & GUI code as Dew Heater Power was not shown correctly.
 28-01-2022  RvE 3.0.1 & 3.0.2 Arduino Added Timer library to Required Library folder and remove Q-Astro-BMA library. Updated the Arduino code to fix Timer bug 
-				and to allow for BM280 I2C Address to be defined (See ObservingConditions.ino).
+						and to allow for BM280 I2C Address to be defined (See ObservingConditions.ino).
 18-10-2022	RvE 3.5.0	Updated the Arduino Code to fix incorrect initialisation of Dew Bands and temp sensors.
-				Using latest Libraries.
-				Added base code for future function to set the Dew Monitor in manual mode which will enable you to set the dew band power manually
-				Overal code cleanup where possible
+						Using latest Libraries.
+						Added base code for future function to set the Dew Monitor in manual mode which will enable you to set the dew band power manually
+						Overal code cleanup where possible
 21-10-2022	RvE 4.0.0	Updated the IU to incorporate the new function to manual set the Dew Power on the Dew Bands.
-				Code made more resilient to errors.
-				Added more status updates.
+						Code made more resilient to errors.
+						Added more status updates.
+29-10-2022	RvE 4.0.1	Resolve Bug where Dew Bands had power applied (Auto mode) and then switch to manual, caused String Conversion error.
 				
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

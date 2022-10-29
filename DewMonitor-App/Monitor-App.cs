@@ -293,8 +293,10 @@ namespace ASCOM.QAstroDew
 
             if (iDewManual == 1)
             {
-                trackBarDew1.Value = TrackBarRoundOff(Int16.Parse(lbDigDewPower1.Value.ToString()));
-                trackBarDew2.Value = TrackBarRoundOff(Int16.Parse(lbDigDewPower2.Value.ToString()));
+                trackBarDew1.Value = (int)lbDigDewPower1.Value;
+                trackBarDew2.Value = (int)lbDigDewPower2.Value;
+                lblDewPower1.Value = trackBarDew1.Value;
+                lblDewPower2.Value = trackBarDew2.Value;
 
                 aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
                 aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
@@ -330,11 +332,6 @@ namespace ASCOM.QAstroDew
         {
             aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
             trackerUpdateTimer.Start();
-        }
-
-        private int TrackBarRoundOff(int i)
-        {
-            return ((int)Math.Round(i / 10.0)) * 10;
         }
 
         private double ValidateTemp(double temp)

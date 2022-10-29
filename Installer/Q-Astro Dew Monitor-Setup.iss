@@ -14,7 +14,7 @@
 ;#define ReleaseType = "Release"
 #define ReleaseType = "Debug"
 
-#define SourcePath = "<Your Source Path>"
+#define SourcePath = "D:\Users\Raoul\OneDrive - QUIDNE IT LTD"
 
 [Setup]
 AppId={{EF44ADC1-04BD-46A5-8419-EA33F1381022}
