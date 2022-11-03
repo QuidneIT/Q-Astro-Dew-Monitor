@@ -2,7 +2,7 @@
  * Q-Astro Dew Monitor
  *
  * Q-Astro Dew Monitor Code.
- * Version: 4.0.0
+ * Version: 4.0.6
  * 
  * Copyright (c)2022 Quidne IT Ltd.
  * 
@@ -10,18 +10,19 @@
 
 #include <Arduino.h>
 #include <OneWire.h>
+
 #include <DallasTemperature.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
+
+#include <SSD1306Ascii.h>
+#include <SSD1306AsciiAvrI2c.h>
+#include <Wire.h>
+
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include "Timer.h"
-#include <EEPROM.h>
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.0.0"
-
-#define LCDPresent 1    //Change this to 0 if you do not use the LCD display. 
+#define VERSION "v4.0.6"
 
 #define qastroId 'i'
 #define observingconditionsId 'o'
@@ -35,10 +36,8 @@ int DisplayAlwaysOn = 0;
 void setup() 
 {
   InitSerial();
-  if (LCDPresent==1) {
-    Serial.println("Init OLED");
-    InitOLEDLCD();
-  }
+  Serial.println("Init OLED");
+  InitOLEDLCD();
   Serial.println("Init Dew Monitor");
   InitObservingConditions();
   Serial.println("Ready..");
@@ -62,7 +61,7 @@ void loop() {
     ASCOMcmd = "";
   }
 
-  if (LCDPresent==1) {CheckShowDataButton();}
+  CheckShowDataButton();
 
   UpdateObservingConditionsData();
   UpdateData();

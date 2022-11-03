@@ -93,6 +93,5 @@ typedef void *__builtin_va_list;
 #include "OLED-LCD.ino"
 #include "ObservingConditions.ino"
 #include "Serial.ino"
-#include "eeprom.ino"
 #endif
 #endif

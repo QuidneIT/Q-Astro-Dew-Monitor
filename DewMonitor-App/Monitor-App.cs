@@ -172,8 +172,11 @@ namespace ASCOM.QAstroDew
 
             lbDigDewTemp1.Value = 0;
             lbDigDewPower1.Value = 0;
+            trackBarDew1.Value = 0;
+
             lbDigDewTemp2.Value = 0;
             lbDigDewPower2.Value = 0;
+            trackBarDew2.Value = 0;
         }
 
         private void UpdateUI()
@@ -199,6 +202,15 @@ namespace ASCOM.QAstroDew
 
                     lbDigDewTemp2.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("e2", false)));
                     lbDigDewPower2.Value = Convert.ToDouble(aObserving.CommandString("o2", false));
+
+                    if (!tglDewManual.Checked)
+                    {
+                        trackBarDew1.Value = Convert.ToInt16(lbDigDewPower1.Value);
+                        lblDewPower1.Value = lbDigDewPower1.Value;
+
+                        trackBarDew2.Value = Convert.ToInt16(lbDigDewPower2.Value);
+                        lblDewPower1.Value = lbDigDewPower1.Value;
+                    }
 
                     if (aObserving.CommandString("m", false) == "1")
                     {
@@ -323,10 +335,10 @@ namespace ASCOM.QAstroDew
             trackerUpdateTimer.Start();
         }
 
-        private void trackBarDew2_Scroll(object sender, EventArgs e)
-        {
-            lblDewPower2.Value = trackBarDew2.Value;
-        }
+       private void trackBarDew2_Scroll(object sender, EventArgs e)
+       {
+           lblDewPower2.Value = trackBarDew2.Value;
+       }
 
         private void trackBarDew2_MouseUp(object sender, EventArgs e)
         {

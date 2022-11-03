@@ -10,6 +10,8 @@ SSD1306AsciiAvrI2c display;
 int val = 0;
 unsigned long onTime;
 
+bool LCDPresent = true;    //Change this to 0 if you do not use the LCD display.
+
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 /* End OLED Definitions */
 
@@ -18,63 +20,93 @@ unsigned long onTime;
 
 void InitOLEDLCD()
 { 
-  // initialize and clear display
-  #if OLED_RESET >= 0
+  CheckOLEDConnected();
+
+  if (LCDPresent)
+  {
+    Serial.println("OLED Present");
+    // initialize and clear display    
     display.begin(&Adafruit128x64, OLED_I2C_ADDRESS, OLED_RESET);
-  #else // RST_PIN >= 0
-    display.begin(&Adafruit128x64, OLED_I2C_ADDRESS);
-  #endif // RST_PIN >= 0
-  pinMode(PIN_SHOW, INPUT);
+    pinMode(PIN_SHOW, INPUT);
   
-  DisplayAlwaysOn = 0;
-  ShowQAstro();
+    DisplayAlwaysOn = 0;
+    ShowQAstro();
+  }
+  else
+    Serial.println("OLED not Present!!");
+}
+
+void CheckOLEDConnected()
+{
+  Wire.beginTransmission(StrToHex(OLED_I2C_ADDRESS));
+  if (Wire.endTransmission() != 0)
+    LCDPresent = false;
+}
+
+int StrToHex(char str[])
+{
+  return (int) strtol(str, 0, 16);
 }
 
 void ShowQAstro()
 {
-  switchonDisplay();
-  display.setFont(System5x7);
-  display.clear();
-  display.println(DEVICE_RESPONSE);
-  display.println(VERSION);
-  display.println("");
-  display.println("by");
-  display.println("Quidne IT Ltd.");
-  display.println("");
-  display.println("Loading...");
+  if (LCDPresent)
+  {
+    switchonDisplay();
+    display.setFont(System5x7);
+    display.clear();
+    display.println(DEVICE_RESPONSE);
+    display.println(VERSION);
+    display.println("");
+    display.println("by");
+    display.println("Quidne IT Ltd.");
+    display.println("");
+    display.println("Loading...");
+  }
 }
 
 void CheckShowDataButton()
 {
-  val = digitalRead(PIN_SHOW);  // read input value
-  if (val == HIGH)
-  { 
-    switchonDisplay();
-    DisplayAlwaysOn = 0;
-  }
+  if (LCDPresent)
+  {  
+    val = digitalRead(PIN_SHOW);  // read input value
+    if (val == HIGH)
+    { 
+      switchonDisplay();
+      DisplayAlwaysOn = 0;
+    }
 
-  if (DisplayAlwaysOn == 0)
-  {
-    if ((onTime > 0) && ((millis() - onTime) > 20000))
-      switchoffDisplay();
+    if (DisplayAlwaysOn == 0)
+    {
+      if ((onTime > 0) && ((millis() - onTime) > 20000))
+        switchoffDisplay();
+    }
   }
 }
 
 void switchonDisplay()
 {
-  ShowData=true;
-  onTime = millis();  
+  if (LCDPresent)
+  {
+    ShowData=true;
+    onTime = millis();  
+  }
 }
 
 void switchoffDisplay()
 {
-  ShowData=false;
-  onTime = 0;
-  display.clear();
+  if (LCDPresent)
+  {
+    ShowData=false;
+    onTime = 0;
+    display.clear();
+  }
 }
 
 void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, int hPower, int hManual)
 {
+  if (LCDPresent)
+  {
     display.setFont(System5x7);
     display.clear();
     if (hManual == 0)
@@ -112,6 +144,7 @@ void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, in
     display.print(" Pwr: ");
     display.print(hPower);
     display.println("%");
+  }
 }
 
 /* ---------------------------------------------------------------------------------------------------------------------------- */

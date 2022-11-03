@@ -29,6 +29,10 @@ Date	    Who	Vers	Description
 						Code made more resilient to errors.
 						Added more status updates.
 29-10-2022	RvE 4.0.1	Resolve Bug where Dew Bands had power applied (Auto mode) and then switch to manual, caused String Conversion error.
+31-10-2022	RvE 4.0.5	Update Arduino code to detect if OLED present or not. 
+						Change code to properly act on OLED present or not.
+						Remove EPROM library & code as it was not used.
+03-11-2022  RvE 4.0.6	Added feature requested by Herb Steck to move the trackbars to the Power level used when in Auto mode.
 				
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

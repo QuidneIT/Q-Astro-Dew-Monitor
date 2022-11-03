@@ -40,10 +40,10 @@ int Humidity;
 int Pressure;
 
 double DewTemp1;
-double DewPower1;  //In Percentage
+int DewPower1;  //In Percentage
 
 double DewTemp2;
-double DewPower2;  //In Percentage
+int DewPower2;  //In Percentage
 
 int TempTimer; 
 int DispHeater;
@@ -159,6 +159,7 @@ void DetermineDewHeatertoDisplay()
         DispHeater = 1;
 }
 
+
 double GetSensorTemp(int sensor)
 {
     double dTemp;
@@ -177,7 +178,7 @@ double GetSensorTemp(int sensor)
 void UpdateAutoDewPower(int DewChannel)
 {
     double Temp = GetSensorTemp(DewChannel);
-    double DewPower = 0;
+    int DewPower = 0;
 
     if (Temp != 99)
     {
@@ -228,7 +229,7 @@ void UpdateManualDewPower(int DewChannel)   // DewPower is in percentage
 int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
 {
     double tempDiff = 0;                                              // set output duty cycle on temp diff between Rain Sensor Temp and ambient dew point 
-    double requiredSensorPower = 0;
+    int requiredSensorPower = 0;
     int sensorPower = 0;
 
     tempDiff = (minTemp + DEWPOINT_THRESHOLD) - SensorTemp;           // Heater ON if  temp Diff  >  SensorTemp - (Dew Point(C) + Threshold(C))
