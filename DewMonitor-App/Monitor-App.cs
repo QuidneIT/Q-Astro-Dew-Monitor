@@ -211,7 +211,7 @@ namespace ASCOM.QAstroDew
                         lblDewPower1.Value = lbDigDewPower1.Value;
 
                         trackBarDew2.Value = Convert.ToInt16(lbDigDewPower2.Value);
-                        lblDewPower2.Value = lbDigDewPower1.Value;
+                        lblDewPower2.Value = lbDigDewPower2.Value;
                     }
 
                     if (aObserving.CommandString("m", false) == "1")
