@@ -2,7 +2,7 @@
  * Q-Astro Dew Monitor
  *
  * Q-Astro Dew Monitor Code.
- * Version: 4.0.6
+ * Version: 4.1.0
  * 
  * Copyright (c)2022 Quidne IT Ltd.
  * 
@@ -22,7 +22,7 @@
 #include "Timer.h"
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.0.6"
+#define VERSION "v4.1.0"
 
 #define qastroId 'i'
 #define observingconditionsId 'o'
@@ -63,6 +63,6 @@ void loop() {
 
   CheckShowDataButton();
 
-  UpdateObservingConditionsData();
+  //UpdateObservingConditionsData();
   UpdateData();
 }

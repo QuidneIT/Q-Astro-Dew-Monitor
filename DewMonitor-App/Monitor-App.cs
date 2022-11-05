@@ -43,7 +43,7 @@ namespace ASCOM.QAstroDew
             ERROR
         }
 
-        private const String cConnected = "Connected - Updating every 5 sec...";
+        private const String cConnected = "Connected - Receiving Frequent Updates...";
         private const String cConnecting = "Connecting...";
         private const String cDisconnected = "Disconnected!";
         private const String cAwaitingData = "Connected - Awaiting Data...";
@@ -52,6 +52,9 @@ namespace ASCOM.QAstroDew
         private const String cManualOn = "Connected - Switching to Manual Mode...";
         private const String cManualOff = "Connected - Switching to Automatic Mode...";
         private const String cUpdateDew = "Connected - Updating Dew Band Power Setting...";
+        private const String cSensorUpd = "Last Upd: ";
+        
+        private double sensorUpdateTime = 0;
 
         private bool bConnected
         {
@@ -76,6 +79,7 @@ namespace ASCOM.QAstroDew
             InitialiseLog();
             ResetObservingData();
             timerUI.Start();
+            currenttimeTimer.Start();
         }
 
         private void InitialiseUI()
@@ -126,7 +130,7 @@ namespace ASCOM.QAstroDew
                     lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
                     break;
                 case Status.AWAITINGDATA:
-                    lblStatus.Text = cConnecting;
+                    lblStatus.Text = cAwaitingData;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Yellow;
                     break;
                 case Status.SETUP:
@@ -171,12 +175,10 @@ namespace ASCOM.QAstroDew
             lbDigAltitude.Value = 0;
 
             lbDigDewTemp1.Value = 0;
-            lbDigDewPower1.Value = 0;
             trackBarDew1.Value = 0;
             lblDewPower1.Value = 0;
 
             lbDigDewTemp2.Value = 0;
-            lbDigDewPower2.Value = 0;
             trackBarDew2.Value = 0;
             lblDewPower2.Value = 0;
         }
@@ -190,28 +192,31 @@ namespace ASCOM.QAstroDew
                 lblStatus.Text = (bConnected) ? cConnected : cDisconnected;
                 lblStatus.Style = (bConnected) ? MetroFramework.MetroColorStyle.Lime : MetroFramework.MetroColorStyle.Red;
 
+                updateCurrentTime();
+
                 if (bConnected)
                 {
                     lbDigSkyTemp.Value = aObserving.Temperature;
                     lbDigHumidity.Value = aObserving.Humidity;
                     lbDigDewPoint.Value = aObserving.DewPoint;
                     lbDigPressure.Value = aObserving.Pressure;
+                    sensorUpdateTime = aObserving.TimeSinceLastUpdate("");
+
+                    updateSensorTime();
+                    updateCurrentTime();
 
                     lbDigAltitude.Value = Convert.ToDouble(aObserving.CommandString("a", false));
 
                     lbDigDewTemp1.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("e1", false)));
-                    lbDigDewPower1.Value = Convert.ToDouble(aObserving.CommandString("o1", false));
+                    lblDewPower1.Value = Convert.ToDouble(aObserving.CommandString("o1", false));
 
                     lbDigDewTemp2.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("e2", false)));
-                    lbDigDewPower2.Value = Convert.ToDouble(aObserving.CommandString("o2", false));
+                    lblDewPower2.Value = Convert.ToDouble(aObserving.CommandString("o2", false));
 
                     if (!tglDewManual.Checked)
                     {
-                        trackBarDew1.Value = Convert.ToInt16(lbDigDewPower1.Value);
-                        lblDewPower1.Value = lbDigDewPower1.Value;
-
-                        trackBarDew2.Value = Convert.ToInt16(lbDigDewPower2.Value);
-                        lblDewPower2.Value = lbDigDewPower2.Value;
+                        trackBarDew1.Value = Convert.ToInt16(lblDewPower1.Value);
+                        trackBarDew2.Value = Convert.ToInt16(lblDewPower2.Value);
                     }
 
                     if (aObserving.CommandString("m", false) == "1")
@@ -236,6 +241,20 @@ namespace ASCOM.QAstroDew
             {
                 HaltError();
             }
+        }
+
+        private void updateSensorTime()
+        {
+            lblSnHH.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("HH"));
+            lblSnMM.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("mm"));
+            lblSnSS.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("ss"));
+        }
+
+        private void updateCurrentTime()
+        {
+            lblTmHH.Value = Double.Parse(DateTime.Now.ToString("HH"));
+            lblTmMM.Value = Double.Parse(DateTime.Now.ToString("mm"));
+            lblTmSS.Value = Double.Parse(DateTime.Now.ToString("ss"));
         }
 
         private void btnQASetup_Click(object sender, EventArgs e)
@@ -307,10 +326,8 @@ namespace ASCOM.QAstroDew
 
             if (iDewManual == 1)
             {
-                trackBarDew1.Value = (int)lbDigDewPower1.Value;
-                trackBarDew2.Value = (int)lbDigDewPower2.Value;
-                lblDewPower1.Value = trackBarDew1.Value;
-                lblDewPower2.Value = trackBarDew2.Value;
+                trackBarDew1.Value = (int)lblDewPower1.Value;
+                trackBarDew2.Value = (int)lblDewPower2.Value;
 
                 aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
                 aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
@@ -447,6 +464,11 @@ namespace ASCOM.QAstroDew
                 }
             }
             catch { }
+        }
+
+        private void currenttimeTimer_Tick(object sender, EventArgs e)
+        {
+            updateCurrentTime();
         }
     }
     #endregion

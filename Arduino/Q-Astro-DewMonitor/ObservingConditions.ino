@@ -18,7 +18,7 @@
 #define PIN_TEMP_SENSOR2  2 
 #define PIN_DEW_CHANNEL2  5 
 
-#define TEMP_UPDATE_INTERVAL  10      // in seconds
+#define TEMP_UPDATE_INTERVAL 10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
 #define SEA_LEVEL_PRESSURE_HPA (1013.25)
 #define DEWPOINT_THRESHOLD 5
@@ -45,7 +45,8 @@ int DewPower1;  //In Percentage
 double DewTemp2;
 int DewPower2;  //In Percentage
 
-int TempTimer; 
+int DispTimer;
+int UpdTimer; 
 int DispHeater;
 
 Timer updateTimer;
@@ -75,7 +76,7 @@ void InitObservingConditions()
 
     InitDewChannel2();
 
-    TempTimer = millis() / 1000;  // start time interval for display updates
+    DispTimer = millis() / 1000;  // start time interval for display updates
     DispHeater = 2;             // Which heater to show first on the dispay
 
     bme.begin(BME280_I2C_Address);
@@ -108,9 +109,9 @@ void UpdateData()
 
     if (ShowData && DataAvailable && (LCDPresent==1))
     {
-        if (((CurrentTime - TempTimer) > DISP_UPDATE_INTERVAL) || (CurrentTime < TempTimer))
+        if (((CurrentTime - DispTimer) > DISP_UPDATE_INTERVAL) || (CurrentTime < DispTimer))
         {
-            TempTimer = CurrentTime;     // update the timestamp
+            DispTimer = CurrentTime;     // update the timestamp
             
             DetermineDewHeatertoDisplay();
 
@@ -148,6 +149,11 @@ void UpdateObservingConditionsData()
       }
       else
           DataAvailable = false;
+    }
+    if (DataAvailable)      // If Data Available then update the update last timer to 0
+    {
+      UpdTimer = millis() / 1000;
+//       SendSerialCommand("Update Timer: " + String(UpdTimer));
     }
 }
 
@@ -296,7 +302,7 @@ void DoObservingConditionsAction(String ASCOMcmd)
         break;
 
      case 'i': //Get Time since last Sensor update (in Sec)
-        SendSerialCommand(observingconditionsId, String(((millis() / 1000) - TempTimer)));
+        SendSerialCommand(observingconditionsId, String(((millis() / 1000) - UpdTimer)));
         break;
 
     case 'm': //Set Dew Monitor Mode (Manual or Auto)
@@ -386,7 +392,7 @@ void returnAllData()
     returnData += "e1" + String(DewTemp1) + "_";
     returnData += "e2" + String(DewTemp2) + "_";
     returnData += "h" + String(Humidity) + "_";
-    returnData += "i" + String(((millis() / 1000) - TempTimer)) + "_";
+    returnData += "i" + String(((millis() / 1000) - UpdTimer)) + "_";
     returnData += "m" + String(DewMonitorMode) + "_";
     returnData += "o1" + String(DewPower1) + "_";
     returnData += "o2" + String(DewPower2) + "_";

@@ -38,14 +38,9 @@ void InitOLEDLCD()
 
 void CheckOLEDConnected()
 {
-  Wire.beginTransmission(StrToHex(OLED_I2C_ADDRESS));
+  Wire.beginTransmission(OLED_I2C_ADDRESS);
   if (Wire.endTransmission() != 0)
     LCDPresent = false;
-}
-
-int StrToHex(char str[])
-{
-  return (int) strtol(str, 0, 16);
 }
 
 void ShowQAstro()

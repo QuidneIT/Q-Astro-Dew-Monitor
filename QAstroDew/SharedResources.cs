@@ -126,6 +126,11 @@ namespace ASCOM.QAstroDew
             }
         }
 
+        public static double AveragePeriod
+        {
+            get { return iTimerInterval; }
+        }
+
         //
         // Public access to shared resources
         //

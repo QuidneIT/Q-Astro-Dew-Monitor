@@ -33,6 +33,9 @@ Date	    Who	Vers	Description
 						Change code to properly act on OLED present or not.
 						Remove EPROM library & code as it was not used.
 03-11-2022  RvE 4.0.6	Added feature requested by Herb Steck to move the trackbars to the Power level used when in Auto mode.
-				
+05-11-2022	RvE 4.1.0	Resolved bug with Arduino ASCOM update time
+				Fix Bug in ASCOM driver to return proper LastTimeUpdate in sec.
+				Monitor App update to show current time and latest Sensor update time.				
+
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

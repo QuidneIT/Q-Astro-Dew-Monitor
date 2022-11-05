@@ -477,14 +477,17 @@ namespace ASCOM.QAstroDew
                 {
                     // break or return the time on the properties that are implemented
                     case "dewpoint":
+                        break;
                     case "humidity":
+                        break;
                     case "skytemperature":
+                        break;
                     case "temperature":
+                        break;
                     case "pressure":
-                        SharedResources.tl.LogMessage(driverShortName + " TimeSinceLastUpdate", SharedResources.LastUpdateTime);
-                        return Convert.ToDouble(SharedResources.LastUpdateTime);
-
+                        break;
                     case "averageperiod":
+                        break;
                     case "rainrate":
                     case "skybrightness":
                     case "skyquality":
@@ -501,8 +504,8 @@ namespace ASCOM.QAstroDew
                 }
             }
             // return the time
-            SharedResources.tl.LogMessage("TimeSinceLastUpdate", PropertyName + " - not implemented");
-            throw new MethodNotImplementedException("TimeSinceLastUpdate(" + PropertyName + ")");
+            SharedResources.tl.LogMessage(driverShortName + " TimeSinceLastUpdate", SharedResources.LastUpdateTime);
+            return Convert.ToDouble(SharedResources.LastUpdateTime);
         }
 
         /// <summary>

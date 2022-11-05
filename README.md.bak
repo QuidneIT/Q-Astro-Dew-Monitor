@@ -5,8 +5,6 @@ You can find details about this Dew Monitor on my website: https://www.q-astro.c
 
 For a version history you can have a look at the VersionHistory.txt file.
 
-Version 4.1.0 is released. For this release you need to update the Arduino code as well.
-
 You can communicate directly with the Arduino on the board (e.g. using puTTY) and the following commands are available to you:
 * i# - This return what it is and its version number.
 * oz# - This return all available data in a single string. This is what the ASCOM driver uses.
