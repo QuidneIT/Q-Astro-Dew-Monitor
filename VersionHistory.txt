@@ -36,6 +36,8 @@ Date	    Who	Vers	Description
 05-11-2022	RvE 4.1.0	Resolved bug with Arduino ASCOM update time
 				Fix Bug in ASCOM driver to return proper LastTimeUpdate in sec.
 				Monitor App update to show current time and latest Sensor update time.				
+06-11-2022	RvE 4.1.1	Optimize Monitor App code. Resolve Connect/Disconnect bugs.
+				Resolve bug switching from Manual to Auto mode and Dew Monitor not updating.
 
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

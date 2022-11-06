@@ -1,12 +1,12 @@
 /*
  * Q-Astro Dew Monitor
- *
- * Q-Astro Dew Monitor Code.
- * Version: 4.1.0
  * 
  * Copyright (c)2022 Quidne IT Ltd.
  * 
  */
+
+#define DEVICE_RESPONSE "Q-Astro Dew Monitor"
+#define VERSION "v4.1.1"
 
 #include <Arduino.h>
 #include <OneWire.h>
@@ -20,9 +20,6 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include "Timer.h"
-
-#define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.1.0"
 
 #define qastroId 'i'
 #define observingconditionsId 'o'

@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using ASCOM.Utilities;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reflection;
-using System.IO;
-using System.Collections;
-using ASCOM.DeviceInterface;
-using ASCOM.DriverAccess;
-using ASCOM.Utilities;
-using System.Timers;
 
 namespace ASCOM.QAstroDew
 {
@@ -52,8 +40,7 @@ namespace ASCOM.QAstroDew
         private const String cManualOn = "Connected - Switching to Manual Mode...";
         private const String cManualOff = "Connected - Switching to Automatic Mode...";
         private const String cUpdateDew = "Connected - Updating Dew Band Power Setting...";
-        private const String cSensorUpd = "Last Upd: ";
-        
+
         private double sensorUpdateTime = 0;
 
         private bool bConnected
@@ -72,13 +59,10 @@ namespace ASCOM.QAstroDew
 
         public MonitorApp()
         {
-            aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
-
             InitializeComponent();
             InitialiseUI();
             InitialiseLog();
             ResetObservingData();
-            timerUI.Start();
             currenttimeTimer.Start();
         }
 
@@ -88,7 +72,7 @@ namespace ASCOM.QAstroDew
             tglDewManual.Enabled = false;
             trackBarDew1.Enabled = false;
             trackBarDew2.Enabled = false;
-            StatusMessage(Status.DISCONNECTED);
+//            StatusMessage(Status.DISCONNECTED);
         }
 
         #region Logging
@@ -119,11 +103,9 @@ namespace ASCOM.QAstroDew
                 case Status.CONNECTED:
                     lblStatus.Text = cConnected;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Lime;
-                    break;
-                case Status.DISCONNECTED:
-                    aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
-                    lblStatus.Text = cDisconnected;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+
+                    btnQAConnect.Text = "Disconnect";
+                    btnQASetup.Enabled = false;
                     break;
                 case Status.CONNECTING:
                     lblStatus.Text = cConnecting;
@@ -134,13 +116,11 @@ namespace ASCOM.QAstroDew
                     lblStatus.Style = MetroFramework.MetroColorStyle.Yellow;
                     break;
                 case Status.SETUP:
-                    aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
+//                    ResetObservingData();
                     lblStatus.Text = cSetup;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
-                    break;
-                case Status.ERROR:
-                    lblStatus.Text = cError;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+                    aObserving.SetupDialog();
+
                     break;
                 case Status.MANUALON:
                     lblStatus.Text = cManualOn;
@@ -154,20 +134,34 @@ namespace ASCOM.QAstroDew
                     lblStatus.Text = cUpdateDew;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
                     break;
+                case Status.DISCONNECTED:
+                    lblStatus.Text = cDisconnected;
+                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+                    btnQAConnect.Text = "Connect";
+                    btnQASetup.Enabled = true; 
+                    ResetObservingData();
+                    break;
+                case Status.ERROR:
+                    lblStatus.Text = cError;
+                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+                    btnQAConnect.Text = "Connect";
+                    btnQASetup.Enabled = true;
+                    errorHalt();
+                    break;
             }
         }
-
-        private void HaltError()
+        private void errorHalt()
         {
-            bConnected = false;
-            StatusMessage(Status.ERROR);
-            timerUI.Stop();
             ResetObservingData();
-            aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
         }
 
         private void ResetObservingData()
         {
+            timerUI.Stop();
+            bConnected = false;
+//            pnlManual.Enabled = false;
+//            pnlSetManual.Enabled = false;
+            tglDewManual.Enabled = false;
             lbDigSkyTemp.Value = 0;
             lbDigHumidity.Value = 0;
             lbDigDewPoint.Value = 0;
@@ -181,6 +175,9 @@ namespace ASCOM.QAstroDew
             lbDigDewTemp2.Value = 0;
             trackBarDew2.Value = 0;
             lblDewPower2.Value = 0;
+
+            aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
+            timerUI.Start();
         }
 
         private void UpdateUI()
@@ -189,9 +186,6 @@ namespace ASCOM.QAstroDew
 
             try
             {
-                lblStatus.Text = (bConnected) ? cConnected : cDisconnected;
-                lblStatus.Style = (bConnected) ? MetroFramework.MetroColorStyle.Lime : MetroFramework.MetroColorStyle.Red;
-
                 updateCurrentTime();
 
                 if (bConnected)
@@ -203,7 +197,6 @@ namespace ASCOM.QAstroDew
                     sensorUpdateTime = aObserving.TimeSinceLastUpdate("");
 
                     updateSensorTime();
-                    updateCurrentTime();
 
                     lbDigAltitude.Value = Convert.ToDouble(aObserving.CommandString("a", false));
 
@@ -220,9 +213,7 @@ namespace ASCOM.QAstroDew
                     }
 
                     if (aObserving.CommandString("m", false) == "1")
-                    {
                         tglDewManual.Enabled = true;
-                    }
 
                     string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
                     logMsg = logMsg + "," + aObserving.CommandString("e1", false) + "," + aObserving.CommandString("o1", false);
@@ -233,13 +224,11 @@ namespace ASCOM.QAstroDew
                     timerUI.Start();
                 }
                 else
-                {
-                    ResetObservingData();
-                }
+                    StatusMessage(Status.DISCONNECTED);
             }
             catch
             {
-                HaltError();
+                StatusMessage(Status.ERROR);
             }
         }
 
@@ -265,7 +254,6 @@ namespace ASCOM.QAstroDew
                 try
                 {
                     StatusMessage(Status.SETUP);
-                    aObserving.SetupDialog();
                     StatusMessage(Status.DISCONNECTED);
                 }
                 catch
@@ -286,6 +274,7 @@ namespace ASCOM.QAstroDew
                     if (bConnected)
                     {
                         StatusMessage(Status.AWAITINGDATA);
+//                        pnlManual.Enabled = true;
                         tglDewManual.Enabled = true;
                         timerUI.Start();
                     }
@@ -293,25 +282,11 @@ namespace ASCOM.QAstroDew
                         StatusMessage(Status.DISCONNECTED);
                 }
                 else
-                {
-                    timerUI.Stop();
-                    bConnected = false;
-                    ResetObservingData();
                     StatusMessage(Status.DISCONNECTED);
-                    pnlManual.Enabled = false;
-                    pnlSetManual.Enabled = false;
-                    lblDewPower1.Value = 0;
-                    lblDewPower2.Value = 0;
-                    trackBarDew1.Value = 0;
-                    trackBarDew2.Value = 0;
-                }
-
-                btnQAConnect.Text = (bConnected) ? "Disconnect" : "Connect";
-                btnQASetup.Enabled = !bConnected;
             }
             catch
             {
-                HaltError();
+                StatusMessage(Status.ERROR);
             }
         }
 
@@ -326,19 +301,16 @@ namespace ASCOM.QAstroDew
 
             if (iDewManual == 1)
             {
+//                pnlSetManual.Enabled = true;
+
                 trackBarDew1.Value = (int)lblDewPower1.Value;
                 trackBarDew2.Value = (int)lblDewPower2.Value;
 
                 aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
                 aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
             }
-            else
-            {
-                trackBarDew1.Value = 0;
-                trackBarDew2.Value = 0;
-                lblDewPower1.Value = 0;
-                lblDewPower2.Value = 0;
-            }
+//            else
+//                pnlSetManual.Enabled = false;
 
             trackBarDew1.Enabled = tglDewManual.Checked;
             trackBarDew2.Enabled = tglDewManual.Checked;
@@ -354,10 +326,10 @@ namespace ASCOM.QAstroDew
             trackerUpdateTimer.Start();
         }
 
-       private void trackBarDew2_Scroll(object sender, EventArgs e)
-       {
-           lblDewPower2.Value = trackBarDew2.Value;
-       }
+        private void trackBarDew2_Scroll(object sender, EventArgs e)
+        {
+            lblDewPower2.Value = trackBarDew2.Value;
+        }
 
         private void trackBarDew2_MouseUp(object sender, EventArgs e)
         {
@@ -374,7 +346,8 @@ namespace ASCOM.QAstroDew
             }
             catch (Exception error)
             {
-                HaltError();
+                StatusMessage(Status.ERROR);
+
                 MessageBox.Show("Number Validation - Error", error.Message);
 
             }
@@ -437,7 +410,7 @@ namespace ASCOM.QAstroDew
             }
             catch (Exception error)
             {
-                HaltError();
+                StatusMessage(Status.ERROR);
                 MessageBox.Show("Dew Monitor - Error", error.Message);
             }
         }

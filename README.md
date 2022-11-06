@@ -1,11 +1,13 @@
 # Q-Astro-Dew-Monitor
 Q- Astro Dew Monitor for a max of 2 dew heaters
 
-You can find details about this Dew Monitor on my website: https://www.q-astro.com/#/ascom-auto-dew-monitor/
+Version 4.1.1 is released. For this release you need to update the Arduino code as well.
 
+You can find details about this Dew Monitor on my website: https://www.q-astro.com/#/ascom-auto-dew-monitor/
 For a version history you can have a look at the VersionHistory.txt file.
 
-Version 4.1.0 is released. For this release you need to update the Arduino code as well.
+When using the Monitor App in Manual mode, be aware that updates can take a few update cycles to filter back to the Monitor App.
+Also switching back from Manual to Automatic mode will take a few update cycles to reflect the change.
 
 You can communicate directly with the Arduino on the board (e.g. using puTTY) and the following commands are available to you:
 * i# - This return what it is and its version number.
