@@ -34,10 +34,19 @@ Date	    Who	Vers	Description
 						Remove EPROM library & code as it was not used.
 03-11-2022  RvE 4.0.6	Added feature requested by Herb Steck to move the trackbars to the Power level used when in Auto mode.
 05-11-2022	RvE 4.1.0	Resolved bug with Arduino ASCOM update time
-				Fix Bug in ASCOM driver to return proper LastTimeUpdate in sec.
-				Monitor App update to show current time and latest Sensor update time.				
+						Fix Bug in ASCOM driver to return proper LastTimeUpdate in sec.
+						Monitor App update to show current time and latest Sensor update time.				
 06-11-2022	RvE 4.1.1	Optimize Monitor App code. Resolve Connect/Disconnect bugs.
-				Resolve bug switching from Manual to Auto mode and Dew Monitor not updating.
+						Resolve bug switching from Manual to Auto mode and Dew Monitor not updating.
+21-11-2022	RvE	4.1.5	Change the ASCOM driver to implement Action() & CustomActions()
+						Added feature requested by Herb Steck to disconnect the Monitor App if no Sensor Updates have been received for 2 min.
+						Fix in Arduino code as Get Dew Heater temp is the e# command and not the w# commmand.
+						Fix bug in Arduino code where power set in Manual mode would either be 100% or 0% and nothing inbetween.
+						Fix bug to enable trace in Setup Dialog.
+
+Still to be fixed:
+* When Dew Monitor disapears (due to USB disconnect) the ASCOM driver to not act correctly and continue to think it is connected.
+
 
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

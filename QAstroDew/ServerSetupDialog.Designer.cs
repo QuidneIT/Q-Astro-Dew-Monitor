@@ -175,6 +175,7 @@
             this.chkTrace.Text = "Off";
             this.chkTrace.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.chkTrace.UseStyleColors = true;
+            this.chkTrace.CheckedChanged += new System.EventHandler(this.chkTrace_CheckedChanged);
             // 
             // ServerSetupDialog
             // 

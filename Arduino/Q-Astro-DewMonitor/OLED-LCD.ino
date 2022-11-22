@@ -10,7 +10,7 @@ SSD1306AsciiAvrI2c display;
 int val = 0;
 unsigned long onTime;
 
-bool LCDPresent = true;    //Change this to 0 if you do not use the LCD display.
+bool LCDPresent = false;    //Change this to 0 if you do not use the LCD display.
 
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 /* End OLED Definitions */
@@ -20,7 +20,7 @@ bool LCDPresent = true;    //Change this to 0 if you do not use the LCD display.
 
 void InitOLEDLCD()
 { 
-  CheckOLEDConnected();
+//  CheckOLEDConnected();
 
   if (LCDPresent)
   {

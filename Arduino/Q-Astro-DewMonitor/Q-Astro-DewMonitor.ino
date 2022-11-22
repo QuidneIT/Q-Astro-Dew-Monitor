@@ -6,7 +6,7 @@
  */
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.1.1"
+#define VERSION "v4.1.5"
 
 #include <Arduino.h>
 #include <OneWire.h>
@@ -42,9 +42,10 @@ void setup()
 
 void loop() {
 
-  if (ASCOMcmdComplete) {
-
-    switch((char)ASCOMcmd[0]) {
+  if (ASCOMcmdComplete) 
+  {
+    switch((char)ASCOMcmd[0]) 
+    {
       case qastroId:
           SendSerialCommand((String(DEVICE_RESPONSE) + " " + String(VERSION)));
         break;

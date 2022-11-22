@@ -12,7 +12,6 @@ namespace ASCOM.QAstroDew
     {
         internal List<COMPortInfo> comPorts;
         internal COMPortInfo comPort;
-//        internal ASCOM.Utilities.Serial serPort;
 
         public ServerSetupDialog()
         {
@@ -45,13 +44,14 @@ namespace ASCOM.QAstroDew
             foreach (COMPortInfo cport in comPorts)
                 ComPortComboBox.Items.Add(cport.Name);
 
+            chkTrace.Checked = Properties.Settings.Default.trace;
+
             // select the current port if possible
             if (comPort != null)
             {
                 if (ComPortComboBox.Items.Contains(Properties.Settings.Default.COMPort))
                     ComPortComboBox.SelectedItem = Properties.Settings.Default.COMPort;
             }
-
         }
 
         private void ComPortComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -59,14 +59,9 @@ namespace ASCOM.QAstroDew
             comPort.Name = ComPortComboBox.GetItemText(this.ComPortComboBox.SelectedItem);
         }
 
-        private void btnTestPrt_Click_1(object sender, EventArgs e)
+        private void chkTrace_CheckedChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void ComboHeaters_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
+            Properties.Settings.Default.trace = chkTrace.Checked;
         }
     }
 }

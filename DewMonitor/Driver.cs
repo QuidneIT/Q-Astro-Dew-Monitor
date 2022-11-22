@@ -21,6 +21,7 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace ASCOM.QAstroDew
 {
@@ -103,14 +104,71 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                SharedResources.tl.LogMessage(driverShortName + " SupportedActions Get", "Returning empty arraylist");
-                return new ArrayList();
+                var CustomActions = new ArrayList();
+                CustomActions.Add("GetDewTemp");
+                CustomActions.Add("GetDewPower");
+                CustomActions.Add("ManualMode");
+                CustomActions.Add("SetDewPower");
+                CustomActions.Add("Altitude");
+
+                string msgForLog = "";
+                foreach (String act in CustomActions)
+                    msgForLog = msgForLog + act + ",";   
+                
+                SharedResources.tl.LogMessage(driverShortName + " SupportedActions Get", msgForLog);
+                return CustomActions;
             }
         }
 
         public string Action(string actionName, string actionParameters)
         {
-            throw new ASCOM.ActionNotImplementedException(driverShortName + " Action " + actionName + " is not implemented by this driver");
+            String returnVal = "";
+
+            switch (actionName)
+            {
+                case "GetDewTemp":
+                    if (actionParameters == "1")
+                        returnVal = SharedResources.DewTemp1;
+                    else
+                        returnVal = SharedResources.DewTemp2;
+                    break;
+                
+                case "GetDewPower":
+                    if (actionParameters == "1")
+                        returnVal = SharedResources.DewPower1;
+                    else
+                        returnVal = SharedResources.DewPower2;
+                    break;
+                
+                case "ManualMode":
+                    if (actionParameters == null)
+                        returnVal = SharedResources.DewModeManual;
+                    else
+                    {
+                        SharedResources.DewModeManual = actionParameters;
+                        returnVal = SharedResources.DewModeManual;
+                    }
+                    break;
+                
+                case "SetDewPower":
+                    string heater = actionParameters.Substring(0, actionParameters.IndexOf(','));
+                    string value = actionParameters.Substring(actionParameters.IndexOf(',') + 1);
+                    if (heater == "1")
+                        SharedResources.DewPower1 = value;
+                    else
+                        SharedResources.DewPower2 = value;
+                    break;
+                
+                case "Altitude":
+                    returnVal = SharedResources.Altitude;
+                    break;
+                
+                default:
+                    throw new ASCOM.ActionNotImplementedException(driverShortName + " Action " + actionName + " is not implemented by this driver");
+//                    break;
+
+            }
+            return returnVal;
         }
 
         public void CommandBlind(string command, bool raw)
@@ -135,7 +193,7 @@ namespace ASCOM.QAstroDew
                     response = SharedResources.Altitude;
                     break;
                 case 'm':
-                    if (command.Length > 1)
+                    if (command.Length == 2)
                         SharedResources.DewModeManual = command.Substring(1);
                     else
                         response = SharedResources.DewModeManual;

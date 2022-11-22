@@ -23,6 +23,7 @@ namespace ASCOM.QAstroDew
             CONNECTED,
             CONNECTING,
             DISCONNECTED,
+            TIMEOUT,
             AWAITINGDATA,
             MANUALON,
             MANUALOFF,
@@ -40,6 +41,9 @@ namespace ASCOM.QAstroDew
         private const String cManualOn = "Connected - Switching to Manual Mode...";
         private const String cManualOff = "Connected - Switching to Automatic Mode...";
         private const String cUpdateDew = "Connected - Updating Dew Band Power Setting...";
+        private const String cTimeout = "Disconnected! - 2 min. Timeout Exceeded...";
+
+        private const int iSensorUpdateTimeout = 120;
 
         private double sensorUpdateTime = 0;
 
@@ -72,7 +76,6 @@ namespace ASCOM.QAstroDew
             tglDewManual.Enabled = false;
             trackBarDew1.Enabled = false;
             trackBarDew2.Enabled = false;
-//            StatusMessage(Status.DISCONNECTED);
         }
 
         #region Logging
@@ -103,7 +106,6 @@ namespace ASCOM.QAstroDew
                 case Status.CONNECTED:
                     lblStatus.Text = cConnected;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Lime;
-
                     btnQAConnect.Text = "Disconnect";
                     btnQASetup.Enabled = false;
                     break;
@@ -116,11 +118,9 @@ namespace ASCOM.QAstroDew
                     lblStatus.Style = MetroFramework.MetroColorStyle.Yellow;
                     break;
                 case Status.SETUP:
-//                    ResetObservingData();
                     lblStatus.Text = cSetup;
                     lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
                     aObserving.SetupDialog();
-
                     break;
                 case Status.MANUALON:
                     lblStatus.Text = cManualOn;
@@ -135,23 +135,23 @@ namespace ASCOM.QAstroDew
                     lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
                     break;
                 case Status.DISCONNECTED:
-                    lblStatus.Text = cDisconnected;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
-                    btnQAConnect.Text = "Connect";
-                    btnQASetup.Enabled = true; 
-                    ResetObservingData();
+                    DisconnectStatus(cDisconnected);
                     break;
                 case Status.ERROR:
-                    lblStatus.Text = cError;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Red;
-                    btnQAConnect.Text = "Connect";
-                    btnQASetup.Enabled = true;
-                    errorHalt();
+                    DisconnectStatus(cError);
+                    break;
+                case Status.TIMEOUT:
+                    DisconnectStatus(cTimeout);
                     break;
             }
         }
-        private void errorHalt()
+
+        private void DisconnectStatus(String statusText)
         {
+            lblStatus.Text = statusText;
+            lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+            btnQAConnect.Text = "Connect";
+            btnQASetup.Enabled = true;
             ResetObservingData();
         }
 
@@ -159,8 +159,6 @@ namespace ASCOM.QAstroDew
         {
             timerUI.Stop();
             bConnected = false;
-//            pnlManual.Enabled = false;
-//            pnlSetManual.Enabled = false;
             tglDewManual.Enabled = false;
             lbDigSkyTemp.Value = 0;
             lbDigHumidity.Value = 0;
@@ -196,32 +194,40 @@ namespace ASCOM.QAstroDew
                     lbDigPressure.Value = aObserving.Pressure;
                     sensorUpdateTime = aObserving.TimeSinceLastUpdate("");
 
-                    updateSensorTime();
-
-                    lbDigAltitude.Value = Convert.ToDouble(aObserving.CommandString("a", false));
-
-                    lbDigDewTemp1.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("e1", false)));
-                    lblDewPower1.Value = Convert.ToDouble(aObserving.CommandString("o1", false));
-
-                    lbDigDewTemp2.Value = ValidateTemp(Convert.ToDouble(aObserving.CommandString("e2", false)));
-                    lblDewPower2.Value = Convert.ToDouble(aObserving.CommandString("o2", false));
-
-                    if (!tglDewManual.Checked)
+                    if (!updateSensorTime())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
                     {
-                        trackBarDew1.Value = Convert.ToInt16(lblDewPower1.Value);
-                        trackBarDew2.Value = Convert.ToInt16(lblDewPower2.Value);
+                        lbDigAltitude.Value = Convert.ToDouble(aObserving.Action("Altitude", ""));
+
+                        double DewTemp1 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "1")));
+                        double DewTemp2 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "2")));
+                        double DewPower1 = Convert.ToDouble(aObserving.Action("GetDewPower", "1"));
+                        double DewPower2 = Convert.ToDouble(aObserving.Action("GetDewPower", "2"));
+
+                        lbDigDewTemp1.Value = DewTemp1;
+                        lblDewPower1.Value = DewPower1;
+
+                        lbDigDewTemp2.Value = DewTemp2;
+                        lblDewPower2.Value = DewPower2;
+
+//                        if (!tglDewManual.Checked)
+//                        {
+                            trackBarDew1.Value = Convert.ToInt16(DewPower1);
+                            trackBarDew2.Value = Convert.ToInt16(DewPower2);
+//                        }
+
+                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
+
+                        logMsg = logMsg + "," + DewTemp1.ToString() + "," + DewPower1.ToString();
+                        logMsg = logMsg + "," + DewTemp2.ToString() + "," + DewPower2.ToString();
+
+                        dLogger.LogMessage(logName, logMsg);
+                        StatusMessage((aObserving.Temperature == 0) ? Status.AWAITINGDATA : Status.CONNECTED);
+                        timerUI.Start();
                     }
-
-                    if (aObserving.CommandString("m", false) == "1")
-                        tglDewManual.Enabled = true;
-
-                    string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
-                    logMsg = logMsg + "," + aObserving.CommandString("e1", false) + "," + aObserving.CommandString("o1", false);
-                    logMsg = logMsg + "," + aObserving.CommandString("e2", false) + "," + aObserving.CommandString("o2", false);
-
-                    dLogger.LogMessage(logName, logMsg);
-                    StatusMessage((aObserving.Temperature == 0) ? Status.AWAITINGDATA : Status.CONNECTED);
-                    timerUI.Start();
+                    else
+                    {
+                        StatusMessage(Status.TIMEOUT);
+                    }
                 }
                 else
                     StatusMessage(Status.DISCONNECTED);
@@ -232,11 +238,18 @@ namespace ASCOM.QAstroDew
             }
         }
 
-        private void updateSensorTime()
+        private bool updateSensorTime()
         {
+            bool timeOut = false;
+
             lblSnHH.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("HH"));
             lblSnMM.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("mm"));
             lblSnSS.Value = Double.Parse(DateTime.Now.AddSeconds(-1 * sensorUpdateTime).ToString("ss"));
+
+            if (sensorUpdateTime > iSensorUpdateTimeout)
+                timeOut = true;
+
+            return timeOut;
         }
 
         private void updateCurrentTime()
@@ -274,7 +287,6 @@ namespace ASCOM.QAstroDew
                     if (bConnected)
                     {
                         StatusMessage(Status.AWAITINGDATA);
-//                        pnlManual.Enabled = true;
                         tglDewManual.Enabled = true;
                         timerUI.Start();
                     }
@@ -297,20 +309,21 @@ namespace ASCOM.QAstroDew
             if (tglDewManual.Checked)
                 iDewManual = 1;
 
-            aObserving.CommandString("m" + iDewManual.ToString(), false);
+            aObserving.Action("ManualMode", iDewManual.ToString());
+
+//            aObserving.CommandString("m" + iDewManual.ToString(), false);
 
             if (iDewManual == 1)
             {
-//                pnlSetManual.Enabled = true;
-
                 trackBarDew1.Value = (int)lblDewPower1.Value;
                 trackBarDew2.Value = (int)lblDewPower2.Value;
 
-                aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
-                aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
+                aObserving.Action("SetDewPower", "1," + trackBarDew1.Value.ToString());
+                aObserving.Action("SetDewPower", "2," + trackBarDew2.Value.ToString());
+
+//                aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
+//                aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
             }
-//            else
-//                pnlSetManual.Enabled = false;
 
             trackBarDew1.Enabled = tglDewManual.Checked;
             trackBarDew2.Enabled = tglDewManual.Checked;
@@ -322,7 +335,8 @@ namespace ASCOM.QAstroDew
 
         private void trackBarDew1_MouseUp(object sender, EventArgs e)
         {
-            aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
+            aObserving.Action("SetDewPower", "1," + trackBarDew1.Value.ToString());
+//            aObserving.CommandString("o1" + trackBarDew1.Value.ToString(), false);
             trackerUpdateTimer.Start();
         }
 
@@ -333,7 +347,8 @@ namespace ASCOM.QAstroDew
 
         private void trackBarDew2_MouseUp(object sender, EventArgs e)
         {
-            aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
+            aObserving.Action("SetDewPower", "2," + trackBarDew2.Value.ToString());
+//            aObserving.CommandString("o2" + trackBarDew2.Value.ToString(), false);
             trackerUpdateTimer.Start();
         }
 

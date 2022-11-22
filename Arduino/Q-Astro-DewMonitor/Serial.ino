@@ -3,10 +3,10 @@
 
 void InitSerial()
 {
-    Serial.flush();
-    Serial.begin(9600);  // Baud rate, make sure this is the same as ASCOM driver
-    ASCOMcmd = "";
-    ASCOMcmdComplete = false;  
+  Serial.flush();
+  Serial.begin(9600);  // Baud rate, make sure this is the same as ASCOM driver
+  ASCOMcmd = "";
+  ASCOMcmdComplete = false;  
 }
 
 void serialEvent() 

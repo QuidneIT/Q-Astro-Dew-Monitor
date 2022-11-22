@@ -141,6 +141,7 @@ namespace ASCOM.QAstroDew
                 if (traceLogger == null)
                 {
                     traceLogger = new TraceLogger("", "Q-Astro");
+
                     traceLogger.Enabled = ASCOM.QAstroDew.Properties.Settings.Default.trace;
                 }
                 return traceLogger;
@@ -187,30 +188,39 @@ namespace ASCOM.QAstroDew
         /// <returns></returns>
         public static string SendMessage(string function, string message)
         {
-            lock (lockObject)
+            try
             {
-                tl.LogMessage("Q-Astro Dew", "Lock Object");
-
-                string msg = function + message + "#";
-
-                if (SharedSerial.Connected && !String.IsNullOrEmpty(msg))
+                lock (lockObject)
                 {
-                    tl.LogMessage("Q-Astro Dew", "Send Msg: " + msg);
+                    tl.LogMessage("Q-Astro Dew", "Lock Object");
 
-                    SharedSerial.ClearBuffers();
-                    SharedSerial.Transmit(msg);
-                    string strRec = SharedSerial.ReceiveTerminated("#");
-                    SharedSerial.ClearBuffers();
+                    string msg = function + message + "#";
 
-                    tl.LogMessage("Q-Astro Dew", "Response Msg: " + strRec);
+                    if (SharedSerial.Connected && !String.IsNullOrEmpty(msg))
+                    {
+                        tl.LogMessage("Q-Astro Dew", "Send Msg: " + msg);
 
-                    return strRec;
+                        SharedSerial.ClearBuffers();
+                        SharedSerial.Transmit(msg);
+                        string strRec = SharedSerial.ReceiveTerminated("#");
+                        SharedSerial.ClearBuffers();
+
+                        tl.LogMessage("Q-Astro Dew", "Response Msg: " + strRec);
+
+                        return strRec;
+                    }
+                    else
+                    {
+                        tl.LogMessage("Q-Astro Dew", "Not Connected or Empty Send Msg: " + message);
+                        return "";
+                    }
                 }
-                else
-                {
-                    tl.LogMessage("Q-Astro Dew", "Not Connected or Empty Send Msg: " + message);
-                    return "";
-                }
+            }
+            catch(Exception error)
+            {
+                SharedResources.connections = 0;
+                Connected = false;
+                return "";
             }
         }
 
@@ -237,11 +247,13 @@ namespace ASCOM.QAstroDew
                             try
                             {
                                 SharedSerial.PortName = ASCOM.QAstroDew.Properties.Settings.Default.COMPort;
-                                //                                SharedSerial.ReceiveTimeoutMs = 2000;
+
+                                SharedSerial.ReceiveTimeoutMs = 15000;
                                 if (SharedSerial.PortName.Length > 0)
                                 {
                                     SharedSerial.Speed = ASCOM.Utilities.SerialSpeed.ps9600;
-                                    //                                SharedSerial.Handshake = ASCOM.Utilities.SerialHandshake.None;
+                                    SharedSerial.Handshake = ASCOM.Utilities.SerialHandshake.None;
+                                    
                                     SharedSerial.Connected = true;
                                     System.Threading.Thread.Sleep(SERIAL_CONNECTION_TIMEOUT);    //Stupid Arduino restarts when opening port - needs to wait
 

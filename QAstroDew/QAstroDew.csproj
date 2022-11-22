@@ -134,13 +134,13 @@
     <Content Include="ASCOM.png" />
     <Content Include="MetroFramework.txt" />
     <Content Include="ReadMe.htm" />
+    <None Include="packages.config" />
     <None Include="Resources\QuidneIT-SQR.png" />
     <None Include="Resources\ASCOM.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="LocalServer.snk" />
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
