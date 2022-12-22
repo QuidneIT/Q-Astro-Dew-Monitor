@@ -197,7 +197,7 @@ double GetSensorTemp(int sensor)
 void UpdateAutoDewPower(int DewChannel)
 {
   double Temp = GetSensorTemp(DewChannel);
-  int DewPower = 0;
+  double DewPower = 0;
 
   if (Temp != 99)
   {
