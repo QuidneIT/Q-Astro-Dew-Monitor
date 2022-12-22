@@ -10,7 +10,7 @@ SSD1306AsciiAvrI2c display;
 int val = 0;
 unsigned long onTime;
 
-bool LCDPresent = false;    //Change this to 0 if you do not use the LCD display.
+bool LCDPresent = true;    //Change this to 0 if you do not use the LCD display.
 
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 /* End OLED Definitions */
@@ -20,7 +20,9 @@ bool LCDPresent = false;    //Change this to 0 if you do not use the LCD display
 
 void InitOLEDLCD()
 { 
-//  CheckOLEDConnected();
+  Serial.println("Init OLED...");
+
+  CheckOLEDConnected();
 
   if (LCDPresent)
   {
@@ -34,6 +36,8 @@ void InitOLEDLCD()
   }
   else
     Serial.println("OLED not Present!!");
+
+  Serial.println("OLED Init Completed");
 }
 
 void CheckOLEDConnected()

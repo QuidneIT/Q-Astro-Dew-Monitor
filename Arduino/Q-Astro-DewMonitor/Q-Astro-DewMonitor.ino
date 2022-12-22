@@ -6,7 +6,7 @@
  */
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.1.5"
+#define VERSION "v4.2.0"
 
 #include <Arduino.h>
 #include <OneWire.h>
@@ -33,9 +33,7 @@ int DisplayAlwaysOn = 0;
 void setup() 
 {
   InitSerial();
-  Serial.println("Init OLED");
   InitOLEDLCD();
-  Serial.println("Init Dew Monitor");
   InitObservingConditions();
   Serial.println("Ready..");
 }

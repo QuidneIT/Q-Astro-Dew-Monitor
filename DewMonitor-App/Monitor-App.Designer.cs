@@ -643,9 +643,9 @@
             this.lbl0.BackColor = System.Drawing.Color.Black;
             this.lbl0.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl0.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl0.Location = new System.Drawing.Point(47, 218);
+            this.lbl0.Location = new System.Drawing.Point(34, 218);
             this.lbl0.Name = "lbl0";
-            this.lbl0.Size = new System.Drawing.Size(55, 27);
+            this.lbl0.Size = new System.Drawing.Size(50, 27);
             this.lbl0.TabIndex = 62;
             this.lbl0.Text = "0%";
             this.lbl0.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -655,9 +655,9 @@
             this.lbl50.BackColor = System.Drawing.Color.Black;
             this.lbl50.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl50.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl50.Location = new System.Drawing.Point(48, 123);
+            this.lbl50.Location = new System.Drawing.Point(35, 123);
             this.lbl50.Name = "lbl50";
-            this.lbl50.Size = new System.Drawing.Size(55, 27);
+            this.lbl50.Size = new System.Drawing.Size(50, 27);
             this.lbl50.TabIndex = 61;
             this.lbl50.Text = "50%";
             this.lbl50.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -667,9 +667,9 @@
             this.lbl100.BackColor = System.Drawing.Color.Black;
             this.lbl100.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl100.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl100.Location = new System.Drawing.Point(49, 32);
+            this.lbl100.Location = new System.Drawing.Point(36, 32);
             this.lbl100.Name = "lbl100";
-            this.lbl100.Size = new System.Drawing.Size(55, 27);
+            this.lbl100.Size = new System.Drawing.Size(50, 27);
             this.lbl100.TabIndex = 60;
             this.lbl100.Text = "100%";
             this.lbl100.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -691,10 +691,11 @@
             // trackBarDew2
             // 
             this.trackBarDew2.LargeChange = 10;
-            this.trackBarDew2.Location = new System.Drawing.Point(96, 29);
+            this.trackBarDew2.Location = new System.Drawing.Point(84, 29);
             this.trackBarDew2.Maximum = 100;
             this.trackBarDew2.Name = "trackBarDew2";
             this.trackBarDew2.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBarDew2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.trackBarDew2.Size = new System.Drawing.Size(56, 216);
             this.trackBarDew2.SmallChange = 10;
             this.trackBarDew2.TabIndex = 56;
@@ -731,7 +732,7 @@
             // trackBarDew1
             // 
             this.trackBarDew1.LargeChange = 10;
-            this.trackBarDew1.Location = new System.Drawing.Point(17, 29);
+            this.trackBarDew1.Location = new System.Drawing.Point(8, 29);
             this.trackBarDew1.Maximum = 100;
             this.trackBarDew1.Name = "trackBarDew1";
             this.trackBarDew1.Orientation = System.Windows.Forms.Orientation.Vertical;

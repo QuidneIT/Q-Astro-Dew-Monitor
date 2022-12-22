@@ -6,7 +6,9 @@ void InitSerial()
   Serial.flush();
   Serial.begin(9600);  // Baud rate, make sure this is the same as ASCOM driver
   ASCOMcmd = "";
-  ASCOMcmdComplete = false;  
+  ASCOMcmdComplete = false; 
+
+  Serial.println("Serial Init Completed"); 
 }
 
 void serialEvent() 

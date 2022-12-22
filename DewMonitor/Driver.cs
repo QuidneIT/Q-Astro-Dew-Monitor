@@ -22,6 +22,7 @@ using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
 using System.Windows.Forms;
+using System.Reflection.Emit;
 
 namespace ASCOM.QAstroDew
 {
@@ -41,7 +42,7 @@ namespace ASCOM.QAstroDew
     /// </summary>
     [Guid("b4928934-b587-446f-af1a-979c232dce15")]
     [ProgId("ASCOM.QAstroDew.ObservingConditions")]
-    [ServedClassName("Q-Astro Dew Management")]
+    [ServedClassName("Q-Astro Dew Monitor")]
     [ClassInterface(ClassInterfaceType.None)]
     public class ObservingConditions : ReferenceCountedObjectBase, IObservingConditions
     {
@@ -55,7 +56,7 @@ namespace ASCOM.QAstroDew
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
         private static string driverDescription = "ASCOM ObservingConditions Driver for Q-Astro Dew.";
-        private static string driverShortName = "Q-Astro Dew Monitor";
+        private static string driverShortName = "Q-Astro Dew";
         private static int interfaceVersion = 2;
 
         /// <summary>
@@ -110,11 +111,12 @@ namespace ASCOM.QAstroDew
                 CustomActions.Add("ManualMode");
                 CustomActions.Add("SetDewPower");
                 CustomActions.Add("Altitude");
+                CustomActions.Add("AllData");
 
                 string msgForLog = "";
                 foreach (String act in CustomActions)
-                    msgForLog = msgForLog + act + ",";   
-                
+                    msgForLog = msgForLog + act + ",";
+
                 SharedResources.tl.LogMessage(driverShortName + " SupportedActions Get", msgForLog);
                 return CustomActions;
             }
@@ -124,48 +126,41 @@ namespace ASCOM.QAstroDew
         {
             String returnVal = "";
 
+            SharedResources.tl.LogMessage(driverShortName + "Action", actionName + "-" + actionParameters);
+
+            CheckConnected("Action");
+
             switch (actionName)
             {
                 case "GetDewTemp":
-                    if (actionParameters == "1")
-                        returnVal = SharedResources.DewTemp1;
-                    else
-                        returnVal = SharedResources.DewTemp2;
+                    returnVal = SharedResources.SendMessage("e" + actionParameters);
                     break;
-                
+
                 case "GetDewPower":
-                    if (actionParameters == "1")
-                        returnVal = SharedResources.DewPower1;
-                    else
-                        returnVal = SharedResources.DewPower2;
+                    returnVal = SharedResources.SendMessage("p" + actionParameters);
                     break;
-                
-                case "ManualMode":
-                    if (actionParameters == null)
-                        returnVal = SharedResources.DewModeManual;
-                    else
-                    {
-                        SharedResources.DewModeManual = actionParameters;
-                        returnVal = SharedResources.DewModeManual;
-                    }
-                    break;
-                
+
                 case "SetDewPower":
                     string heater = actionParameters.Substring(0, actionParameters.IndexOf(','));
                     string value = actionParameters.Substring(actionParameters.IndexOf(',') + 1);
-                    if (heater == "1")
-                        SharedResources.DewPower1 = value;
-                    else
-                        SharedResources.DewPower2 = value;
+
+                    returnVal = SharedResources.SendMessage("p" + heater + value);
                     break;
-                
+
+                case "ManualMode":
+                    returnVal = SharedResources.SendMessage("m" + actionParameters);
+                    break;
+
                 case "Altitude":
-                    returnVal = SharedResources.Altitude;
+                    returnVal = SharedResources.SendMessage("a");
                     break;
-                
+
+                case "AllData":
+                    returnVal = SharedResources.SendMessage("z");
+                    break;
+
                 default:
                     throw new ASCOM.ActionNotImplementedException(driverShortName + " Action " + actionName + " is not implemented by this driver");
-//                    break;
 
             }
             return returnVal;
@@ -185,43 +180,8 @@ namespace ASCOM.QAstroDew
 
         public string CommandString(string command, bool raw)
         {
-            string response = "";
             CheckConnected("CommandString");
-            switch (command[0])
-            {
-                case 'a':
-                    response = SharedResources.Altitude;
-                    break;
-                case 'm':
-                    if (command.Length == 2)
-                        SharedResources.DewModeManual = command.Substring(1);
-                    else
-                        response = SharedResources.DewModeManual;
-                    break;
-                case 'o':
-                    if (command.Length > 2)
-                    {
-                        if (command[1] == '1')
-                            SharedResources.DewPower1 = command.Substring(2);
-                        else
-                            SharedResources.DewPower2 = command.Substring(2);
-                    }
-                    else
-                    {
-                        if (command[1] == '1')
-                            response = SharedResources.DewPower1;
-                        else
-                            response = SharedResources.DewPower2;
-                    }
-                    break;
-                case 'e':
-                    if (command[1] == '1')
-                        response = SharedResources.DewTemp1;
-                    else
-                        response = SharedResources.DewTemp2;
-                    break;
-            }
-            return response;
+            return SharedResources.SendMessage(command);
         }
 
         public void Dispose()
@@ -230,17 +190,17 @@ namespace ASCOM.QAstroDew
 
         public bool Connected
         {
-            get { return IsConnected; }
+            get { return SharedResources.IsConnected(); }
             set
             {
                 {
                     SharedResources.tl.LogMessage(driverShortName + " Connected Set", value.ToString());
-                    if (value == IsConnected)
+                    if (value == SharedResources.IsConnected())
                         return;
 
                     if (value)
                     {
-                        if (IsConnected) return;
+                        if (SharedResources.IsConnected()) return;
                         SharedResources.tl.LogMessage(driverShortName + "Connected Set", "Connecting to port " + ASCOM.QAstroDew.Properties.Settings.Default.COMPort);
                         SharedResources.Connected = true;
                         connectedState = SharedResources.Connected;
@@ -308,7 +268,7 @@ namespace ASCOM.QAstroDew
 
         #region IObservingConditions Implementation
 
-//        private string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
+        //        private string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
 
         /// <summary>
         /// Gets and sets the time period over which observations wil be averaged
@@ -358,8 +318,9 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                SharedResources.tl.LogMessage(driverShortName + " DewPoint", SharedResources.DewPoint);
-                return Convert.ToDouble(SharedResources.DewPoint);
+                string dewPoint = SharedResources.SendMessage("d");
+                SharedResources.tl.LogMessage(driverShortName + " DewPoint", dewPoint);
+                return Convert.ToDouble(dewPoint);
             }
         }
 
@@ -374,8 +335,9 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                SharedResources.tl.LogMessage(driverShortName + " Humidity", SharedResources.Humidity);
-                return Convert.ToDouble(SharedResources.Humidity);
+                string humidity = SharedResources.SendMessage("h");
+                SharedResources.tl.LogMessage(driverShortName + " Humidity", humidity);
+                return Convert.ToDouble(humidity);
             }
         }
 
@@ -391,8 +353,9 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                SharedResources.tl.LogMessage(driverShortName + " Pressure", SharedResources.Pressure);
-                return Convert.ToDouble(SharedResources.Pressure);
+                string pressure = SharedResources.SendMessage("b");
+                SharedResources.tl.LogMessage(driverShortName + " Pressure", pressure);
+                return Convert.ToDouble(pressure);
             }
         }
 
@@ -418,7 +381,9 @@ namespace ASCOM.QAstroDew
         /// </summary>
         public void Refresh()
         {
-            throw new System.NotImplementedException();
+            SharedResources.SendMessage("r");
+            SharedResources.tl.LogMessage(driverShortName + " Refresh", "");
+//            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -434,17 +399,21 @@ namespace ASCOM.QAstroDew
         {
             switch (PropertyName.Trim().ToLowerInvariant())
             {
-                case "averageperiod":
-                    return "Average period in hours, immediate values are only available";
                 case "dewpoint":
+                    return "Dew Point in degrees celcius";
                 case "humidity":
+                    return "Humidity in %";
                 case "pressure":
+                    return "Atmospheric pressure in bar";
+                case "temperature":
+                    return "Temperature in degrees celcius";
+                case "averageperiod":
+//                    return "Average period in hours, immediate values are only available";
                 case "rainrate":
                 case "skybrightness":
                 case "skyquality":
                 case "starfwhm":
                 case "skytemperature":
-                case "temperature":
                 case "winddirection":
                 case "windgust":
                 case "windspeed":
@@ -511,8 +480,9 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                SharedResources.tl.LogMessage(driverShortName + " Obs Temperature", SharedResources.ObsTemp);
-                return Convert.ToDouble(SharedResources.ObsTemp);
+                string obsTemp = SharedResources.SendMessage("t");
+                SharedResources.tl.LogMessage(driverShortName + " Obs Temperature", obsTemp);
+                return Convert.ToDouble(obsTemp);
             }
         }
 
@@ -538,15 +508,13 @@ namespace ASCOM.QAstroDew
                         break;
                     case "humidity":
                         break;
-                    case "skytemperature":
-                        break;
                     case "temperature":
                         break;
                     case "pressure":
                         break;
                     case "averageperiod":
-                        break;
                     case "rainrate":
+                    case "skytemperature":
                     case "skybrightness":
                     case "skyquality":
                     case "starfwhm":
@@ -561,9 +529,17 @@ namespace ASCOM.QAstroDew
                         throw new ASCOM.InvalidValueException("SensorDescription(" + PropertyName + ")");
                 }
             }
-            // return the time
-            SharedResources.tl.LogMessage(driverShortName + " TimeSinceLastUpdate", SharedResources.LastUpdateTime);
-            return Convert.ToDouble(SharedResources.LastUpdateTime);
+            try
+            {
+                string timeSinceLastUpdate = SharedResources.SendMessage("i");      // returns Seconds since the last sensor update
+                SharedResources.tl.LogMessage(driverShortName + " TimeSinceLastUpdate", timeSinceLastUpdate);
+                return Convert.ToDouble(timeSinceLastUpdate);
+            }
+            catch(Exception ex)
+            {
+                connectedState = false;
+                return 999;
+            }
         }
 
         /// <summary>
@@ -610,10 +586,7 @@ namespace ASCOM.QAstroDew
         {
             string recTemp = "";
 
-            if (heater == 1)
-                recTemp = SharedResources.DewTemp1;
-            else
-                recTemp = SharedResources.DewTemp2;
+            recTemp = SharedResources.SendMessage("e" + heater.ToString());
 
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Temp", recTemp);
             return Convert.ToDouble(recTemp);
@@ -623,10 +596,7 @@ namespace ASCOM.QAstroDew
         {
             string recPower = "";
 
-            if (heater == 1)
-                recPower = SharedResources.DewPower1;
-            else
-                recPower = SharedResources.DewPower2;
+            recPower = SharedResources.SendMessage("p" + heater.ToString());
 
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Power", recPower);
             return Convert.ToDouble(recPower);
@@ -671,24 +641,12 @@ namespace ASCOM.QAstroDew
         // to help with driver development
 
         /// <summary>
-        /// Returns true if there is a valid connection to the driver hardware
-        /// </summary>
-      private bool IsConnected
-        {
-            get
-            {
-                // TODO check that the driver hardware connection exists and is connected to the hardware
-                return connectedState;
-            }
-        }
- 
-        /// <summary>
         /// Use this function to throw an exception if we aren't connected to the hardware
         /// </summary>
         /// <param name="message"></param>
         private void CheckConnected(string message)
         {
-            if (!IsConnected)
+            if (!SharedResources.IsConnected())
             {
                 throw new ASCOM.NotConnectedException(message);
             }

@@ -38,15 +38,25 @@ Date	    Who	Vers	Description
 						Monitor App update to show current time and latest Sensor update time.				
 06-11-2022	RvE 4.1.1	Optimize Monitor App code. Resolve Connect/Disconnect bugs.
 						Resolve bug switching from Manual to Auto mode and Dew Monitor not updating.
-21-11-2022	RvE	4.1.5	Change the ASCOM driver to implement Action() & CustomActions()
+21-11-2022	RvE 4.1.5	Change the ASCOM driver to implement Action() & CustomActions()
 						Added feature requested by Herb Steck to disconnect the Monitor App if no Sensor Updates have been received for 2 min.
 						Fix in Arduino code as Get Dew Heater temp is the e# command and not the w# commmand.
 						Fix bug in Arduino code where power set in Manual mode would either be 100% or 0% and nothing inbetween.
 						Fix bug to enable trace in Setup Dialog.
-
-Still to be fixed:
-* When Dew Monitor disapears (due to USB disconnect) the ASCOM driver to not act correctly and continue to think it is connected.
-
+22-12-2022	RvE 4.2.0	Many updates to the internal code of the:
+						* Arduino Code 
+							- Changed the startup process. Delay the start of the power to the dew bands if Dew Bands need power upon startup due to low temps.
+							- Changed pressure data requested from p to b.
+							- Consolidated get & set dewband power to p.
+							- Added some additional Serial data output during initialisation.
+						* ASCOM Driver
+							- Completely changed the way data is requested from the Arduino. Removed the consolidated data request timed function to individual requests. 
+							- Fixed a long standing bug where the driver did not notice a disconnect from the Arduino.
+							- Added more error checking.
+							- Properly implemented TimeSinceLastUpdate function.
+							- Implemented the Refresh function.
+						* Monitor App
+							- Updated the Data Request process to a seperate function.
 
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

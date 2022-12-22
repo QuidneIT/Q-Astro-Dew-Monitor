@@ -21,6 +21,7 @@ using ASCOM.Utilities;
 using System.Windows.Forms;
 using System.Timers;
 using System.Diagnostics.PerformanceData;
+using System.Runtime.Remoting.Messaging;
 
 namespace ASCOM.QAstroDew
 {
@@ -45,91 +46,6 @@ namespace ASCOM.QAstroDew
 
         public const string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
         private const int SERIAL_CONNECTION_TIMEOUT = 15000;
-
-        private static System.Timers.Timer timerAstro;
-        private static int iTimerInterval = 15000;          //Milliseconds = 15 seconds
-
-        private static string pObsTemp = "";
-        private static string pAltitude = "";
-        private static string pDewPoint = "";
-        private static string pHumidity = "";
-        private static string pPressure = "";
-        private static string pDewTemp1 = "";
-        private static string pDewTemp2 = "";
-        private static string pDewPower1 = "";
-        private static string pDewPower2 = "";
-        private static string pLastUpdateTime = "";
-        private static string pDewModeManual = "0";       // false = Automatic, true = Manual 
-        
-        private static bool pDewPowerChanged = false;
-        private static bool pDewModeChanged = false;
-
-        public static string ObsTemp
-        { get { return pObsTemp; } }
-
-        public static string Altitude
-        { get { return pAltitude; } }
-
-        public static string DewPoint
-        { get { return pDewPoint; } }
-
-        public static string Humidity
-        { get { return pHumidity; } }
-
-        public static string Pressure
-        { get { return pPressure; } }
-
-        public static string DewTemp1
-        { get { return pDewTemp1; } }
-
-        public static string DewTemp2
-        { get { return pDewTemp2; } }
-
-        public static string DewPower1
-        { get { return pDewPower1; }
-            set
-            {
-                if (value != pDewPower1)
-                {
-                    pDewPower1 = value;
-                    pDewPowerChanged = true;
-                }
-
-            }
-        }
-
-        public static string DewPower2
-        {
-            get { return pDewPower2; }
-            set
-            {
-                if (value != pDewPower2)
-                {
-                    pDewPower2 = value;
-                    pDewPowerChanged = true;
-                }
-            }
-        }
-
-        public static string LastUpdateTime
-        {  get { return pLastUpdateTime; } }
-
-        public static string DewModeManual  //Dew Mode Automatic = 0, Manual = 1
-        { 
-            get { return pDewModeManual; }
-            set {
-                if (value != pDewModeManual)
-                {
-                    pDewModeManual = value;
-                    pDewModeChanged = true;
-                }
-            }
-        }
-
-        public static double AveragePeriod
-        {
-            get { return iTimerInterval; }
-        }
 
         //
         // Public access to shared resources
@@ -186,6 +102,12 @@ namespace ASCOM.QAstroDew
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
+        /// 
+        public static string SendMessage(string message)
+        {
+            return SendMessage(ASCOMfunction, message);
+        }
+
         public static string SendMessage(string function, string message)
         {
             try
@@ -205,7 +127,12 @@ namespace ASCOM.QAstroDew
                         string strRec = SharedSerial.ReceiveTerminated("#");
                         SharedSerial.ClearBuffers();
 
-                        tl.LogMessage("Q-Astro Dew", "Response Msg: " + strRec);
+                        tl.LogMessage("Q-Astro Dew", "Raw Response Msg: " + strRec);
+
+                        strRec = strRec.Trim('#');
+                        strRec = strRec.Trim(ASCOMfunction[0]);
+
+                        tl.LogMessage("Q-Astro Dew", "Filtered Response Msg: " + strRec);
 
                         return strRec;
                     }
@@ -216,7 +143,7 @@ namespace ASCOM.QAstroDew
                     }
                 }
             }
-            catch(Exception error)
+            catch (Exception error)
             {
                 SharedResources.connections = 0;
                 Connected = false;
@@ -253,7 +180,7 @@ namespace ASCOM.QAstroDew
                                 {
                                     SharedSerial.Speed = ASCOM.Utilities.SerialSpeed.ps9600;
                                     SharedSerial.Handshake = ASCOM.Utilities.SerialHandshake.None;
-                                    
+
                                     SharedSerial.Connected = true;
                                     System.Threading.Thread.Sleep(SERIAL_CONNECTION_TIMEOUT);    //Stupid Arduino restarts when opening port - needs to wait
 
@@ -265,17 +192,12 @@ namespace ASCOM.QAstroDew
                                         SharedSerial.Connected = false;
                                     }
                                     else
-                                    {
                                         SharedSerial.Connected = true;
-                                        GetSetData();
-                                        InitialiseTimer();
-                                        timerAstro.Start();
-                                    }
                                 }
                                 else
                                 {
                                     SharedSerial.Connected = false;
-                                    MessageBox.Show("No Q-Astro Dew Monitor COM port set", "Please do set a COM port before trying to connect.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("No Q-Astro Dew COM port set", "Please do set a COM port before trying to connect.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                             }
                             catch (System.IO.IOException exception)
@@ -309,8 +231,6 @@ namespace ASCOM.QAstroDew
                         s_z--;
                         if (s_z <= 0)
                         {
-                            DisposeTimer();
-
                             SharedSerial.Connected = false;
                             traceLogger.Enabled = false;
                             traceLogger.Dispose();
@@ -320,6 +240,11 @@ namespace ASCOM.QAstroDew
                 }
             }
             get { return SharedSerial.Connected; }
+        }
+
+        public static bool IsConnected()
+        {
+            return connections > 0 && SharedSerial != null && SharedSerial.Connected;
         }
 
         #endregion
@@ -417,115 +342,6 @@ namespace ASCOM.QAstroDew
             }
 
             return String.Empty;
-        }
-
-        #region Timer Methods
-
-        private static void InitialiseTimer()
-        {
-            timerAstro = new System.Timers.Timer(iTimerInterval);
-            timerAstro.Elapsed += timerAstro_Tick;
-            timerAstro.AutoReset = true;
-            timerAstro.Enabled = true;
-        }
-
-        private static void DisposeTimer()
-        {
-            timerAstro.Stop();
-            timerAstro.Enabled = false;
-            timerAstro.Dispose();
-        }
-
-        private static void timerAstro_Tick(Object source, ElapsedEventArgs e)
-        {
-            GetSetData();
-        }
-
-        private static void GetSetData()
-        {
-            if (pDewModeChanged) ChangeDewMode();           // Only change Dew Monitor Mode is a change has been made.
-            if (pDewPowerChanged) SetData();                // Only change the Power on the Dew Bands if a change as been made.
-            GetData();
-        }
-
-        #endregion
-
-        // Change the mode of the Dew Monitor from Auto to Manual and back.
-        private static void ChangeDewMode()
-        {
-            pDewModeChanged = false;
-            string response = SendMessage(ASCOMfunction, "m" + pDewModeManual);
-        }
-
-        //The only data that can be set on a Dew Monitor is the Dew Band Power when the Dew Monitor is switched to Manual.
-        private static void SetData()
-        {
-            string response = "";
-            pDewPowerChanged = false;
-            response = SendMessage(ASCOMfunction, "o1" + pDewPower1);
-            response = SendMessage(ASCOMfunction, "o2" + pDewPower2);
-        }
-
-        private static void GetData()
-        {
-            if (SharedResources.Connected)
-            {
-                string response = SendMessage(ASCOMfunction, "z");
-                int iPos = response.IndexOf('#');
-                response = response.Substring(1, iPos - 1); //Start at 1 as 0 contains the Function which will be o.
-
-                tl.LogMessage("Q-Astro - Data Received", response);
-
-                if (response.Length > 0)
-                    DeconstructData(response);
-            }
-        }
-
-        private static void DeconstructData(string response)
-        {
-            string[] meteoItems = response.Split('_');
-
-            foreach (var meteo in meteoItems)
-            {
-                string item = meteo.Substring(1);
-
-                switch (meteo[0])
-                {
-                    case 'a':       //Altitude
-                        pAltitude = item;
-                        break;
-                    case 'd':       //Dew Point
-                        pDewPoint = item;
-                        break;
-                    case 'e':       //Dew Band Temp
-                        if (item[0] == '1')
-                            pDewTemp1 = item.Substring(1);
-                        else
-                            pDewTemp2 = item.Substring(1);
-                        break;
-                    case 'h':       //Humidity
-                        pHumidity = item;
-                        break;
-                    case 'i':       //Last Update Time
-                        pLastUpdateTime = item;
-                        break;
-                    case 'm':       //Dew Monitor Manual or Automatic. 0 = Automatic, 1 = Manual
-                        pDewModeManual = item;
-                        break;
-                    case 'p':       //Pressure
-                        pPressure = item;
-                        break;
-                    case 'o':       //Dew Band Power
-                        if (item[0] == '1')
-                            pDewPower1 = item.Substring(1);
-                        else
-                            pDewPower2 = item.Substring(1);
-                        break;
-                    case 't':       //Observatory Temp
-                        pObsTemp = item;
-                        break;
-                }
-            }
         }
     }
 
