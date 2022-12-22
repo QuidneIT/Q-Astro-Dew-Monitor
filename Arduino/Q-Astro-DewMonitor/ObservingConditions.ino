@@ -233,13 +233,13 @@ void UpdateManualDewPower(int DewChannel)   // DewPower is in percentage
   {
     case 1:
       DewTemp1 = Temp;
-      DewPower = round(MAX_DEWPOWER * (DewPower1 / 100));
+      DewPower = round(MAX_DEWPOWER * (DewPower1 * 0.01));
       analogWrite(PIN_DEW_CHANNEL1, DewPower);   // set the PWM value to be 0-254    
       break;
 
     case 2:
       DewTemp2 = Temp;
-      DewPower = round(MAX_DEWPOWER * (DewPower2 / 100));
+      DewPower = round(MAX_DEWPOWER * (DewPower2 * 0.01));
       analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
       break;
   }
