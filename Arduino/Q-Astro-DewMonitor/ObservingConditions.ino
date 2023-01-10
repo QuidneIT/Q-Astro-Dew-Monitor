@@ -305,8 +305,6 @@ boolean GetSHTData()
     anError = false;
   }
 
-  ObsTemp = ObsTemp - 5;
-
   if (isnan(DewPoint))
     DewPoint = 0;
 

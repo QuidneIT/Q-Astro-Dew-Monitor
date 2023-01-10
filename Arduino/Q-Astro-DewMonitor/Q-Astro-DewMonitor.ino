@@ -6,7 +6,7 @@
  */
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.3.0"
+#define VERSION "v4.3.1"
 
 #include <Arduino.h>
 #include <OneWire.h>

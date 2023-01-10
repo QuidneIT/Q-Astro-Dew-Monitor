@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quidne IT Ltd.")]
 [assembly: AssemblyProduct("ASCOM ObservingConditions driver for Q-Astro Dew Monitor")]
-[assembly: AssemblyCopyright("Copyright © 2022, Quidne IT Ltd.")]
+[assembly: AssemblyCopyright("Copyright © 2023, Quidne IT Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,5 +35,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 //
 // TODO - Set your driver's version here
-[assembly: AssemblyVersion("4.3.0")]
-[assembly: AssemblyFileVersion("4.3.0.0")]
+[assembly: AssemblyVersion("4.3.1")]
+[assembly: AssemblyFileVersion("4.3.1.0")]

@@ -129,8 +129,7 @@ namespace ASCOM.QAstroDew
 
                         tl.LogMessage("Q-Astro Dew", "Raw Response Msg: " + strRec);
 
-                        strRec = strRec.Trim('#');
-                        strRec = strRec.Trim(ASCOMfunction[0]);
+                        strRec = cleanResponse(strRec);
 
                         tl.LogMessage("Q-Astro Dew", "Filtered Response Msg: " + strRec);
 
@@ -149,6 +148,18 @@ namespace ASCOM.QAstroDew
                 Connected = false;
                 return "";
             }
+        }
+
+        private static string cleanResponse(string strRec)
+        {
+            int startPos = strRec.IndexOf(ASCOMfunction[0]);
+            
+            strRec = strRec.Substring(startPos);
+
+            strRec = strRec.Trim('#');
+            strRec = strRec.Trim(ASCOMfunction[0]);
+
+            return strRec;
         }
 
         /// <summary>
