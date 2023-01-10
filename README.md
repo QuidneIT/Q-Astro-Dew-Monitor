@@ -1,7 +1,8 @@
 # Q-Astro-Dew-Monitor
 Q- Astro Dew Monitor for a max of 2 dew heaters
 
-Version 4.2.0 is released. For this release you need to update the Arduino code as well.
+Version 4.3.0 is released. For this release you need to update the Arduino code as well.
+The big change between 4.2.0 and 4.3.0 is the move from a BME280 to a SHT31. The SHT31 is more reliable but does not provide Pressure & ALtitude data.
 
 You can find details about this Dew Monitor on my website: https://www.q-astro.com/#/ascom-auto-dew-monitor/
 For a version history you can have a look at the VersionHistory.txt file.
@@ -11,8 +12,6 @@ Also switching back from Manual to Automatic mode will take a few update cycles 
 
 You can communicate directly with the Arduino on the board (e.g. using puTTY) and the following commands are available to you:
 * i#   - This return what it is and its version number.
-* oa#  - Returns Altitude above sea level.
-* ob#  - Returns Pressure in bar.
 * od#  - Returns Dew Point in Celsius.
 * oex# - Returns the Dew Band temperature in celcius, where x is either 1 or 2 for the specific Dew Band.
 * oi#  - Returns in sec the last time the Sensor data was read from the Dew Monitor.
@@ -22,8 +21,6 @@ You can communicate directly with the Arduino on the board (e.g. using puTTY) an
 * opx# - Where x can be 1 or 2 and will return the current power (in %) applied to the requested dew band.
 * or#  - Force an update of the sensor data.
 * oz# - This return all available data in a single string. This is what the ASCOM driver uses.
-    - a = Altitude
-    - d = Dew Point (in Celsius)
     - ex = x either 1 or 2, gives you the temp of either Dew Band 1 or 2 (in Celsius)
     - h = Humidity (%)
     - i = last update time
