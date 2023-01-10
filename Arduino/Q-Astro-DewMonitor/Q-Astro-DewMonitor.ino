@@ -47,7 +47,7 @@ void loop() {
     switch((char)ASCOMcmd[0]) 
     {
       case qastroId:
-          SendSerialCommand((String(DEVICE_RESPONSE) + " " + String(VERSION)));
+          SendSerialCommand(observingconditionsId + String(DEVICE_RESPONSE) + " " + String(VERSION));
         break;
 
       case observingconditionsId: //Case fhe function is for the Environmentals

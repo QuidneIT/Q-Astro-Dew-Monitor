@@ -45,7 +45,7 @@ namespace ASCOM.QAstroDew
         private static TraceLogger traceLogger;
 
         public const string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
-        private const int SERIAL_CONNECTION_TIMEOUT = 15000;
+        private const int SERIAL_CONNECTION_TIMEOUT = 20000;
 
         //
         // Public access to shared resources

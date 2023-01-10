@@ -64,6 +64,7 @@ Date	    Who	Vers	Description
 						All the code related to the BME280 has only been commented out in this version.
 						Added icon to Start-Menu -> Programs
 10-01-2023 RvE 4.3.1	Added cleanResponse() to the SharedResources.cs to clean the response incase of any corruption in the serial stream.
+						Arduino code updated to add a o to the response when performing an i# request.
 
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------
