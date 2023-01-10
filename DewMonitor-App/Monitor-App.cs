@@ -51,12 +51,12 @@ namespace ASCOM.QAstroDew
         private double DewTemp2 = 0;
         private double DewPower1 = 0;
         private double DewPower2 = 0;
-        private double Altitude = 0;
 
         private double Temperature = 0;
         private double Humidity = 0;
         private double DewPoint = 0;
-        private double Pressure = 0;
+//        private double Pressure = 0;
+//        private double Altitude = 0;
 
         private bool bConnected
         {
@@ -92,7 +92,8 @@ namespace ASCOM.QAstroDew
         #region Logging
         private void InitialiseLog()
         {
-            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
+//            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
+            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Tmp1,Pwr1,Tmp2,Pwr2");
         }
 
         private static TraceLogger dLogger
@@ -174,8 +175,8 @@ namespace ASCOM.QAstroDew
             lbDigSkyTemp.Value = 0;
             lbDigHumidity.Value = 0;
             lbDigDewPoint.Value = 0;
-            lbDigPressure.Value = 0;
-            lbDigAltitude.Value = 0;
+//            lbDigPressure.Value = 0;
+//            lbDigAltitude.Value = 0;
 
             lbDigDewTemp1.Value = 0;
             trackBarDew1.Value = 0;
@@ -200,9 +201,9 @@ namespace ASCOM.QAstroDew
                 Temperature = aObserving.Temperature;
                 Humidity = aObserving.Humidity;
                 DewPoint = aObserving.DewPoint;
-                Pressure = aObserving.Pressure;
 
-                Altitude = Convert.ToDouble(aObserving.Action("Altitude", ""));
+//                Pressure = aObserving.Pressure;
+//                Altitude = Convert.ToDouble(aObserving.Action("Altitude", ""));
 
                 DewTemp1 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "1")));
                 DewTemp2 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "2")));
@@ -227,24 +228,12 @@ namespace ASCOM.QAstroDew
                 {
                     if (GetData())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
                     {
-                        Temperature = aObserving.Temperature;
-                        Humidity= aObserving.Humidity;
-                        DewPoint = aObserving.DewPoint;
-                        Pressure = aObserving.Pressure;
-
-                        Altitude = Convert.ToDouble(aObserving.Action("Altitude", ""));
-
-                        DewTemp1 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "1")));
-                        DewTemp2 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "2")));
-                        DewPower1 = Convert.ToDouble(aObserving.Action("GetDewPower", "1"));
-                        DewPower2 = Convert.ToDouble(aObserving.Action("GetDewPower", "2"));
-
                         lbDigSkyTemp.Value = Temperature;
                         lbDigHumidity.Value = Humidity;
                         lbDigDewPoint.Value = DewPoint;
-                        lbDigPressure.Value = Pressure;
 
-                        lbDigAltitude.Value = Altitude;
+//                        lbDigPressure.Value = Pressure;
+//                        lbDigAltitude.Value = Altitude;
 
                         lbDigDewTemp1.Value = DewTemp1;
                         lblDewPower1.Value = DewPower1;
@@ -255,7 +244,9 @@ namespace ASCOM.QAstroDew
                         trackBarDew1.Value = Convert.ToInt16(DewPower1);
                         trackBarDew2.Value = Convert.ToInt16(DewPower2);
 
-                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
+                        //                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
+                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint;
+
 
                         logMsg = logMsg + "," + DewTemp1.ToString() + "," + DewPower1.ToString();
                         logMsg = logMsg + "," + DewTemp2.ToString() + "," + DewPower2.ToString();

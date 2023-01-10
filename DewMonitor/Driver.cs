@@ -110,7 +110,7 @@ namespace ASCOM.QAstroDew
                 CustomActions.Add("GetDewPower");
                 CustomActions.Add("ManualMode");
                 CustomActions.Add("SetDewPower");
-                CustomActions.Add("Altitude");
+//                CustomActions.Add("Altitude");
                 CustomActions.Add("AllData");
 
                 string msgForLog = "";
@@ -151,9 +151,9 @@ namespace ASCOM.QAstroDew
                     returnVal = SharedResources.SendMessage("m" + actionParameters);
                     break;
 
-                case "Altitude":
-                    returnVal = SharedResources.SendMessage("a");
-                    break;
+ //               case "Altitude":
+//                    returnVal = SharedResources.SendMessage("a");
+//                    break;
 
                 case "AllData":
                     returnVal = SharedResources.SendMessage("z");
@@ -268,8 +268,6 @@ namespace ASCOM.QAstroDew
 
         #region IObservingConditions Implementation
 
-        //        private string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
-
         /// <summary>
         /// Gets and sets the time period over which observations wil be averaged
         /// </summary>
@@ -353,11 +351,21 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                string pressure = SharedResources.SendMessage("b");
-                SharedResources.tl.LogMessage(driverShortName + " Pressure", pressure);
-                return Convert.ToDouble(pressure);
+                SharedResources.tl.LogMessage("Pressure", "get - not implemented");
+                throw new PropertyNotImplementedException("Pressure", false);
             }
         }
+
+        /*        public double Pressure
+                {
+                    get
+                    {
+                        string pressure = SharedResources.SendMessage("b");
+                        SharedResources.tl.LogMessage(driverShortName + " Pressure", pressure);
+                        return Convert.ToDouble(pressure);
+                    }
+                }
+        */
 
         /// <summary>
         /// Rain rate at the observatory
@@ -403,12 +411,12 @@ namespace ASCOM.QAstroDew
                     return "Dew Point in degrees celcius";
                 case "humidity":
                     return "Humidity in %";
-                case "pressure":
-                    return "Atmospheric pressure in bar";
                 case "temperature":
                     return "Temperature in degrees celcius";
                 case "averageperiod":
 //                    return "Average period in hours, immediate values are only available";
+                case "pressure":
+//                    return "Atmospheric pressure in bar";
                 case "rainrate":
                 case "skybrightness":
                 case "skyquality":
@@ -511,7 +519,7 @@ namespace ASCOM.QAstroDew
                     case "temperature":
                         break;
                     case "pressure":
-                        break;
+//                        break;
                     case "averageperiod":
                     case "rainrate":
                     case "skytemperature":

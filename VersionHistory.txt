@@ -58,5 +58,11 @@ Date	    Who	Vers	Description
 						* Monitor App
 							- Updated the Data Request process to a seperate function.
 
+10-01-2023 RvE 4.3.0	Moved from a BME280 to a SHT31. Big difference is that the SHT31 does not record Altitude or Pressure. These 2 parameters have been removed from the
+						Arduino code, ASCOM Driver & Monitor App.
+						Additional code cleaning as some duplication of actions where found in the Monitor-App.
+						All the code related to the BME280 has only been commented out in this version.
+						Added icon to Start-Menu -> Programs
+
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

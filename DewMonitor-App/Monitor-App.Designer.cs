@@ -54,12 +54,12 @@
             this.lbDigDewTemp1 = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
             this.label20 = new System.Windows.Forms.Label();
             this.pnlObserving = new System.Windows.Forms.Panel();
-            this.label19 = new System.Windows.Forms.Label();
-            this.lbDigAltitude = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.lbDigPressure = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
-            this.label16 = new System.Windows.Forms.Label();
+//            this.lblAltitudeType = new System.Windows.Forms.Label();
+//            this.lbDigAltitude = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
+//            this.lblAltitude = new System.Windows.Forms.Label();
+//            this.lblPressureType = new System.Windows.Forms.Label();
+//            this.lbDigPressure = new LBSoft.IndustrialCtrls.Meters.LBDigitalMeter();
+//            this.lblPressure = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
@@ -204,7 +204,7 @@
             this.lblMinimize.AutoSize = true;
             this.lblMinimize.Location = new System.Drawing.Point(497, 6);
             this.lblMinimize.Name = "lblMinimize";
-            this.lblMinimize.Size = new System.Drawing.Size(14, 16);
+            this.lblMinimize.Size = new System.Drawing.Size(12, 13);
             this.lblMinimize.TabIndex = 21;
             this.lblMinimize.Text = "-";
             this.lblMinimize.Click += new System.EventHandler(this.lblMinimize_Click);
@@ -214,7 +214,7 @@
             this.lblClose.AutoSize = true;
             this.lblClose.Location = new System.Drawing.Point(515, 6);
             this.lblClose.Name = "lblClose";
-            this.lblClose.Size = new System.Drawing.Size(16, 16);
+            this.lblClose.Size = new System.Drawing.Size(15, 13);
             this.lblClose.TabIndex = 22;
             this.lblClose.Text = "X";
             this.lblClose.Click += new System.EventHandler(this.lblClose_Click);
@@ -224,7 +224,7 @@
             this.lblCaption.AutoSize = true;
             this.lblCaption.Location = new System.Drawing.Point(0, 6);
             this.lblCaption.Name = "lblCaption";
-            this.lblCaption.Size = new System.Drawing.Size(203, 16);
+            this.lblCaption.Size = new System.Drawing.Size(174, 13);
             this.lblCaption.TabIndex = 24;
             this.lblCaption.Text = "Q-Astro Dew Monitor Panel - ";
             // 
@@ -308,7 +308,7 @@
             this.lbDigDewTemp2.ForeColor = System.Drawing.Color.Red;
             this.lbDigDewTemp2.Format = "00.0";
             this.lbDigDewTemp2.Location = new System.Drawing.Point(178, 67);
-            this.lbDigDewTemp2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigDewTemp2.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigDewTemp2.Name = "lbDigDewTemp2";
             this.lbDigDewTemp2.Renderer = null;
             this.lbDigDewTemp2.Signed = true;
@@ -359,7 +359,7 @@
             this.lbDigDewTemp1.ForeColor = System.Drawing.Color.Red;
             this.lbDigDewTemp1.Format = "00.0";
             this.lbDigDewTemp1.Location = new System.Drawing.Point(178, 31);
-            this.lbDigDewTemp1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigDewTemp1.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigDewTemp1.Name = "lbDigDewTemp1";
             this.lbDigDewTemp1.Renderer = null;
             this.lbDigDewTemp1.Signed = true;
@@ -383,12 +383,14 @@
             // pnlObserving
             // 
             this.pnlObserving.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnlObserving.Controls.Add(this.label19);
+/*
+            this.pnlObserving.Controls.Add(this.lblAltitudeType);
             this.pnlObserving.Controls.Add(this.lbDigAltitude);
-            this.pnlObserving.Controls.Add(this.label22);
-            this.pnlObserving.Controls.Add(this.label17);
+            this.pnlObserving.Controls.Add(this.lblAltitude);
+            this.pnlObserving.Controls.Add(this.lblPressureType);
             this.pnlObserving.Controls.Add(this.lbDigPressure);
-            this.pnlObserving.Controls.Add(this.label16);
+            this.pnlObserving.Controls.Add(this.lblPressure);
+*/
             this.pnlObserving.Controls.Add(this.label2);
             this.pnlObserving.Controls.Add(this.label5);
             this.pnlObserving.Controls.Add(this.label12);
@@ -404,18 +406,19 @@
             this.pnlObserving.Size = new System.Drawing.Size(304, 201);
             this.pnlObserving.TabIndex = 48;
             // 
-            // label19
+            // lblAltitudeType
             // 
-            this.label19.BackColor = System.Drawing.Color.Black;
-            this.label19.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label19.ForeColor = System.Drawing.Color.YellowGreen;
-            this.label19.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label19.Location = new System.Drawing.Point(260, 161);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(36, 26);
-            this.label19.TabIndex = 54;
-            this.label19.Text = "M";
-            this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+/*
+            this.lblAltitudeType.BackColor = System.Drawing.Color.Black;
+            this.lblAltitudeType.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAltitudeType.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblAltitudeType.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblAltitudeType.Location = new System.Drawing.Point(260, 161);
+            this.lblAltitudeType.Name = "lblAltitudeType";
+            this.lblAltitudeType.Size = new System.Drawing.Size(36, 26);
+            this.lblAltitudeType.TabIndex = 54;
+            this.lblAltitudeType.Text = "M";
+            this.lblAltitudeType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lbDigAltitude
             // 
@@ -423,7 +426,7 @@
             this.lbDigAltitude.ForeColor = System.Drawing.Color.Red;
             this.lbDigAltitude.Format = "0000";
             this.lbDigAltitude.Location = new System.Drawing.Point(178, 161);
-            this.lbDigAltitude.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigAltitude.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigAltitude.Name = "lbDigAltitude";
             this.lbDigAltitude.Renderer = null;
             this.lbDigAltitude.Signed = false;
@@ -431,30 +434,30 @@
             this.lbDigAltitude.TabIndex = 53;
             this.lbDigAltitude.Value = 0D;
             // 
-            // label22
+            // lblAltitude
             // 
-            this.label22.BackColor = System.Drawing.Color.Black;
-            this.label22.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label22.ForeColor = System.Drawing.Color.YellowGreen;
-            this.label22.Location = new System.Drawing.Point(88, 161);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(90, 27);
-            this.label22.TabIndex = 52;
-            this.label22.Text = "Altitude:";
-            this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblAltitude.BackColor = System.Drawing.Color.Black;
+            this.lblAltitude.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAltitude.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblAltitude.Location = new System.Drawing.Point(88, 161);
+            this.lblAltitude.Name = "lblAltitude";
+            this.lblAltitude.Size = new System.Drawing.Size(90, 27);
+            this.lblAltitude.TabIndex = 52;
+            this.lblAltitude.Text = "Altitude:";
+            this.lblAltitude.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label17
+            // lblPressureType
             // 
-            this.label17.BackColor = System.Drawing.Color.Black;
-            this.label17.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.ForeColor = System.Drawing.Color.YellowGreen;
-            this.label17.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label17.Location = new System.Drawing.Point(260, 129);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(36, 26);
-            this.label17.TabIndex = 51;
-            this.label17.Text = "hPa";
-            this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblPressureType.BackColor = System.Drawing.Color.Black;
+            this.lblPressureType.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPressureType.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblPressureType.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblPressureType.Location = new System.Drawing.Point(260, 129);
+            this.lblPressureType.Name = "lblPressureType";
+            this.lblPressureType.Size = new System.Drawing.Size(36, 26);
+            this.lblPressureType.TabIndex = 51;
+            this.lblPressureType.Text = "hPa";
+            this.lblPressureType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lbDigPressure
             // 
@@ -462,7 +465,7 @@
             this.lbDigPressure.ForeColor = System.Drawing.Color.Red;
             this.lbDigPressure.Format = "0000";
             this.lbDigPressure.Location = new System.Drawing.Point(178, 129);
-            this.lbDigPressure.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigPressure.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigPressure.Name = "lbDigPressure";
             this.lbDigPressure.Renderer = null;
             this.lbDigPressure.Signed = false;
@@ -470,17 +473,18 @@
             this.lbDigPressure.TabIndex = 50;
             this.lbDigPressure.Value = 0D;
             // 
-            // label16
+            // lblPressure
             // 
-            this.label16.BackColor = System.Drawing.Color.Black;
-            this.label16.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.ForeColor = System.Drawing.Color.YellowGreen;
-            this.label16.Location = new System.Drawing.Point(88, 129);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(90, 27);
-            this.label16.TabIndex = 49;
-            this.label16.Text = "Pressure:";
-            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblPressure.BackColor = System.Drawing.Color.Black;
+            this.lblPressure.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPressure.ForeColor = System.Drawing.Color.YellowGreen;
+            this.lblPressure.Location = new System.Drawing.Point(88, 129);
+            this.lblPressure.Name = "lblPressure";
+            this.lblPressure.Size = new System.Drawing.Size(90, 27);
+            this.lblPressure.TabIndex = 49;
+            this.lblPressure.Text = "Pressure:";
+            this.lblPressure.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+*/
             // 
             // label2
             // 
@@ -562,7 +566,7 @@
             this.lbDigSkyTemp.ForeColor = System.Drawing.Color.Red;
             this.lbDigSkyTemp.Format = "00.0";
             this.lbDigSkyTemp.Location = new System.Drawing.Point(178, 29);
-            this.lbDigSkyTemp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigSkyTemp.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigSkyTemp.Name = "lbDigSkyTemp";
             this.lbDigSkyTemp.Renderer = null;
             this.lbDigSkyTemp.Signed = true;
@@ -577,7 +581,7 @@
             this.lbDigHumidity.ForeColor = System.Drawing.Color.Red;
             this.lbDigHumidity.Format = "000";
             this.lbDigHumidity.Location = new System.Drawing.Point(197, 98);
-            this.lbDigHumidity.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigHumidity.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigHumidity.Name = "lbDigHumidity";
             this.lbDigHumidity.Renderer = null;
             this.lbDigHumidity.Signed = false;
@@ -591,7 +595,7 @@
             this.lbDigDewPoint.ForeColor = System.Drawing.Color.Red;
             this.lbDigDewPoint.Format = "00.0";
             this.lbDigDewPoint.Location = new System.Drawing.Point(178, 64);
-            this.lbDigDewPoint.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDigDewPoint.Margin = new System.Windows.Forms.Padding(4);
             this.lbDigDewPoint.Name = "lbDigDewPoint";
             this.lbDigDewPoint.Renderer = null;
             this.lbDigDewPoint.Signed = true;
@@ -604,7 +608,7 @@
             this.lblAbout.AutoSize = true;
             this.lblAbout.Location = new System.Drawing.Point(478, 6);
             this.lblAbout.Name = "lblAbout";
-            this.lblAbout.Size = new System.Drawing.Size(14, 16);
+            this.lblAbout.Size = new System.Drawing.Size(13, 13);
             this.lblAbout.TabIndex = 57;
             this.lblAbout.Text = "?";
             this.lblAbout.Click += new System.EventHandler(this.lblAbout_Click);
@@ -643,7 +647,7 @@
             this.lbl0.BackColor = System.Drawing.Color.Black;
             this.lbl0.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl0.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl0.Location = new System.Drawing.Point(34, 218);
+            this.lbl0.Location = new System.Drawing.Point(44, 218);
             this.lbl0.Name = "lbl0";
             this.lbl0.Size = new System.Drawing.Size(50, 27);
             this.lbl0.TabIndex = 62;
@@ -655,7 +659,7 @@
             this.lbl50.BackColor = System.Drawing.Color.Black;
             this.lbl50.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl50.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl50.Location = new System.Drawing.Point(35, 123);
+            this.lbl50.Location = new System.Drawing.Point(45, 123);
             this.lbl50.Name = "lbl50";
             this.lbl50.Size = new System.Drawing.Size(50, 27);
             this.lbl50.TabIndex = 61;
@@ -667,7 +671,7 @@
             this.lbl100.BackColor = System.Drawing.Color.Black;
             this.lbl100.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl100.ForeColor = System.Drawing.Color.YellowGreen;
-            this.lbl100.Location = new System.Drawing.Point(36, 32);
+            this.lbl100.Location = new System.Drawing.Point(46, 32);
             this.lbl100.Name = "lbl100";
             this.lbl100.Size = new System.Drawing.Size(50, 27);
             this.lbl100.TabIndex = 60;
@@ -680,7 +684,7 @@
             this.lblDewPower2.ForeColor = System.Drawing.Color.Red;
             this.lblDewPower2.Format = "000";
             this.lblDewPower2.Location = new System.Drawing.Point(82, 254);
-            this.lblDewPower2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblDewPower2.Margin = new System.Windows.Forms.Padding(4);
             this.lblDewPower2.Name = "lblDewPower2";
             this.lblDewPower2.Renderer = null;
             this.lblDewPower2.Signed = false;
@@ -691,12 +695,12 @@
             // trackBarDew2
             // 
             this.trackBarDew2.LargeChange = 10;
-            this.trackBarDew2.Location = new System.Drawing.Point(84, 29);
+            this.trackBarDew2.Location = new System.Drawing.Point(93, 29);
             this.trackBarDew2.Maximum = 100;
             this.trackBarDew2.Name = "trackBarDew2";
             this.trackBarDew2.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.trackBarDew2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.trackBarDew2.Size = new System.Drawing.Size(56, 216);
+            this.trackBarDew2.Size = new System.Drawing.Size(45, 216);
             this.trackBarDew2.SmallChange = 10;
             this.trackBarDew2.TabIndex = 56;
             this.trackBarDew2.TickFrequency = 10;
@@ -721,7 +725,7 @@
             this.lblDewPower1.ForeColor = System.Drawing.Color.Red;
             this.lblDewPower1.Format = "000";
             this.lblDewPower1.Location = new System.Drawing.Point(5, 254);
-            this.lblDewPower1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblDewPower1.Margin = new System.Windows.Forms.Padding(4);
             this.lblDewPower1.Name = "lblDewPower1";
             this.lblDewPower1.Renderer = null;
             this.lblDewPower1.Signed = false;
@@ -737,7 +741,7 @@
             this.trackBarDew1.Name = "trackBarDew1";
             this.trackBarDew1.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.trackBarDew1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.trackBarDew1.Size = new System.Drawing.Size(56, 218);
+            this.trackBarDew1.Size = new System.Drawing.Size(45, 218);
             this.trackBarDew1.SmallChange = 10;
             this.trackBarDew1.TabIndex = 2;
             this.trackBarDew1.TickFrequency = 10;
@@ -771,7 +775,7 @@
             this.tglDewManual.AutoSize = true;
             this.tglDewManual.Location = new System.Drawing.Point(35, 34);
             this.tglDewManual.Name = "tglDewManual";
-            this.tglDewManual.Size = new System.Drawing.Size(80, 20);
+            this.tglDewManual.Size = new System.Drawing.Size(80, 17);
             this.tglDewManual.TabIndex = 60;
             this.tglDewManual.Text = "Off";
             this.tglDewManual.UseVisualStyleBackColor = true;
@@ -851,7 +855,7 @@
             this.lblSnSS.ForeColor = System.Drawing.Color.Red;
             this.lblSnSS.Format = "00";
             this.lblSnSS.Location = new System.Drawing.Point(250, 5);
-            this.lblSnSS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblSnSS.Margin = new System.Windows.Forms.Padding(4);
             this.lblSnSS.Name = "lblSnSS";
             this.lblSnSS.Renderer = null;
             this.lblSnSS.Signed = false;
@@ -865,7 +869,7 @@
             this.lblSnMM.ForeColor = System.Drawing.Color.Red;
             this.lblSnMM.Format = "00";
             this.lblSnMM.Location = new System.Drawing.Point(198, 5);
-            this.lblSnMM.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblSnMM.Margin = new System.Windows.Forms.Padding(4);
             this.lblSnMM.Name = "lblSnMM";
             this.lblSnMM.Renderer = null;
             this.lblSnMM.Signed = false;
@@ -879,7 +883,7 @@
             this.lblSnHH.ForeColor = System.Drawing.Color.Red;
             this.lblSnHH.Format = "00";
             this.lblSnHH.Location = new System.Drawing.Point(147, 5);
-            this.lblSnHH.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblSnHH.Margin = new System.Windows.Forms.Padding(4);
             this.lblSnHH.Name = "lblSnHH";
             this.lblSnHH.Renderer = null;
             this.lblSnHH.Signed = false;
@@ -948,7 +952,7 @@
             this.lblTmSS.ForeColor = System.Drawing.Color.Red;
             this.lblTmSS.Format = "00";
             this.lblTmSS.Location = new System.Drawing.Point(250, 3);
-            this.lblTmSS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblTmSS.Margin = new System.Windows.Forms.Padding(4);
             this.lblTmSS.Name = "lblTmSS";
             this.lblTmSS.Renderer = null;
             this.lblTmSS.Signed = false;
@@ -962,7 +966,7 @@
             this.lblTmMM.ForeColor = System.Drawing.Color.Red;
             this.lblTmMM.Format = "00";
             this.lblTmMM.Location = new System.Drawing.Point(198, 3);
-            this.lblTmMM.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblTmMM.Margin = new System.Windows.Forms.Padding(4);
             this.lblTmMM.Name = "lblTmMM";
             this.lblTmMM.Renderer = null;
             this.lblTmMM.Signed = false;
@@ -976,7 +980,7 @@
             this.lblTmHH.ForeColor = System.Drawing.Color.Red;
             this.lblTmHH.Format = "00";
             this.lblTmHH.Location = new System.Drawing.Point(147, 3);
-            this.lblTmHH.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lblTmHH.Margin = new System.Windows.Forms.Padding(4);
             this.lblTmHH.Name = "lblTmHH";
             this.lblTmHH.Renderer = null;
             this.lblTmHH.Signed = false;
@@ -986,7 +990,7 @@
             // 
             // MonitorApp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(539, 576);
@@ -1069,12 +1073,14 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lbDigDewTemp2;
-        private System.Windows.Forms.Label label17;
+/*
+        private System.Windows.Forms.Label lblPressureType;
         private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lbDigPressure;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label lblPressure;
+        private System.Windows.Forms.Label lblAltitudeType;
         private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lbDigAltitude;
-        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label lblAltitude;
+*/
         private System.Windows.Forms.Panel pnlSetManual;
         private System.Windows.Forms.Label lblDew1;
         private LBSoft.IndustrialCtrls.Meters.LBDigitalMeter lblDewPower1;

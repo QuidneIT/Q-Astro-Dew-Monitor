@@ -17,7 +17,7 @@
 
 #define TEMP_UPDATE_INTERVAL 10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
-//#define SEA_LEVEL_PRESSURE_HPA (1013.25)
+#define SEA_LEVEL_PRESSURE_HPA (1013.25)
 #define DEWPOINT_THRESHOLD 5
 #define MIN_DEVICE_TEMP 10			  // This is the min temp that needs the device to be kept at. 
 #define MAX_DEWPOWER 254
@@ -25,17 +25,16 @@
 
 #define MAX_DEWHEATERS 2
 
-//#define BME280_I2C_Address (0x76)
-#define SHT31_I2C_Address (0x44)
+#define BME280_I2C_Address (0x76)
 
 #define DEWMONITOR_MODE 1     //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
 
 double ObsTemp;
-//double Altitude;
+double Altitude;
 double DewPoint;
 
 double Humidity;
-//double Pressure;
+double Pressure;
 
 double DewTemp1;
 int DewPower1 = 0;  //In Percentage
@@ -49,15 +48,13 @@ int DispHeater;
 
 Timer updateTimer;
 
-//bool BME280Error = false;
-bool SHT31Error = false;
+bool BME280Error = false;
 
 bool DataAvailable = false;
 
 int DewMonitorMode = DEWMONITOR_MODE;          // On Startup the Dew Monitor will always run in Automatic Mode.
 
-//Adafruit_BME280 bme; // I2C
-Adafruit_SHT31 sht; //I2C
+Adafruit_BME280 bme; // I2C
 
 OneWire tSensor1(PIN_TEMP_SENSOR1);
 OneWire tSensor2(PIN_TEMP_SENSOR2);
@@ -73,7 +70,7 @@ DallasTemperature sensor2(&tSensor2);
 
 void InitObservingConditions()
 {
-  InitSHT();
+  InitBME();
 
   InitDewChannel1();
 
@@ -92,7 +89,6 @@ void InitObservingConditions()
   DewMonitorMode = 0;
 }
 
-/*
 void InitBME()
 {
   Serial.println("Init BME280");
@@ -103,19 +99,6 @@ void InitBME()
   if (BME280Error)
     Serial.println("BME280 Init Failed");
 }
-*/
-
-void InitSHT()
-{
-  Serial.println("Init SHT31");
-  sht.begin(SHT31_I2C_Address);
-  delay(1000);
-  SHT31Error = GetSHTData();
-
-  if (SHT31Error)
-    Serial.println("SHT31 Init Failed");
-}
-
 
 void InitDewChannel1()
 {
@@ -162,9 +145,9 @@ void UpdateObservingConditionsData()
 {
   DataAvailable = true;
 
-  SHT31Error = GetSHTData();
+  BME280Error = GetBMEData();
 
-  if ((DewMonitorMode == 1) && (SHT31Error == false))      // If Dew Monitor in Manual Mode
+  if ((DewMonitorMode == 1) && (BME280Error == false))      // If Dew Monitor in Manual Mode
   {
     sensor1.requestTemperatures(); // Send the command to get temperature readings
     UpdateManualDewPower(1);
@@ -174,7 +157,7 @@ void UpdateObservingConditionsData()
   }
   else
   {   
-    if (SHT31Error == false)  // If there is BME data and in Dew Monitor in Automatic Mode
+    if (BME280Error == false)  // If there is BME data and in Dew Monitor in Automatic Mode
     {
       sensor1.requestTemperatures(); // Send the command to get temperature readings
       UpdateAutoDewPower(1);
@@ -276,44 +259,6 @@ int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
   return sensorPower;
 }
 
-boolean GetSHTData()
-{
-  float logEx;
-  boolean anError;
-
-  // Read temperature as Celsius (the default)
-  ObsTemp = sht.readTemperature();
-
-  Humidity = sht.readHumidity();
-  // Read temperature as Celsius (the default)
-
-  // Check if Temp or Humidity data from BME280 has an error
-  if (isnan(ObsTemp) || isnan(Humidity))
-  {
-    // if error reading SHT31 set all to 0
-    ObsTemp = 0;
-    Humidity = 0;
-    DewPoint = 0;
-    anError = true;
-  }
-  else 
-  {
-    // if no error reading DHT22 calc dew point
-    // more complex dew point calculation
-    logEx = 0.66077 + 7.5 * ObsTemp / (237.3 + ObsTemp) + (log10(Humidity) - 2);
-    DewPoint = (logEx - 0.66077) * 237.3 / (0.66077 + 7.5 - logEx);
-    anError = false;
-  }
-
-  ObsTemp = ObsTemp - 5;
-
-  if (isnan(DewPoint))
-    DewPoint = 0;
-
-  return anError;
-}
-
-/*
 boolean GetBMEData()
 {
   float logEx;
@@ -357,13 +302,11 @@ boolean GetBMEData()
 
   return anError;
 }
-*/
 
 void DoObservingConditionsAction(String ASCOMcmd)
 {  
   switch ((char)ASCOMcmd[0])
   {
-/*
     case 'a': //Get the current Altitude 
       SendSerialCommand(observingconditionsId, String(Altitude));
       break;
@@ -371,7 +314,7 @@ void DoObservingConditionsAction(String ASCOMcmd)
     case 'b': //Get the current Pressure
       SendSerialCommand(observingconditionsId, String(Pressure));
       break;
-*/
+
     case 'd': //Get the current Dew Point
       SendSerialCommand(observingconditionsId, String(DewPoint));
       break;
@@ -464,8 +407,8 @@ void GetSetDewMonitorMode(String cmd)
 void returnAllData()
 {
   String returnData = "";
-//  returnData += "a" + String(Altitude) + "_";
-//  returnData += "b" + String(Pressure) + "_";
+  returnData += "a" + String(Altitude) + "_";
+  returnData += "b" + String(Pressure) + "_";
   returnData += "d" + String(DewPoint) + "_";
   returnData += "e1" + String(DewTemp1) + "_";
   returnData += "e2" + String(DewTemp2) + "_";
