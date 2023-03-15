@@ -6,7 +6,7 @@
  */
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v4.3.1"
+#define VERSION "v4.8.0"
 
 #include <Arduino.h>
 #include <OneWire.h>
@@ -18,7 +18,6 @@
 #include <Wire.h>
 
 #include <Adafruit_Sensor.h>
-//#include <Adafruit_BME280.h>
 #include <Adafruit_SHT31.h>
 
 #include "Timer.h"
@@ -61,6 +60,5 @@ void loop() {
 
   CheckShowDataButton();
 
-  //UpdateObservingConditionsData();
-  UpdateData();
+  UpdateDisplayData();
 }

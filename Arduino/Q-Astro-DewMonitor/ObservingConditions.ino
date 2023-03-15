@@ -9,54 +9,56 @@
 
 */
 
-#define PIN_TEMP_SENSOR1  4 
-#define PIN_DEW_CHANNEL1  3 
+#define PIN_TEMP_SENSOR1  2 
+#define PIN_DEW_CHANNEL1  5 
 
-#define PIN_TEMP_SENSOR2  2 
-#define PIN_DEW_CHANNEL2  5 
+#define PIN_TEMP_SENSOR2  4 
+#define PIN_DEW_CHANNEL2  3 
 
 #define TEMP_UPDATE_INTERVAL 10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
-//#define SEA_LEVEL_PRESSURE_HPA (1013.25)
+
 #define DEWPOINT_THRESHOLD 5
-#define MIN_DEVICE_TEMP 10			  // This is the min temp that needs the device to be kept at. 
+#define MIN_DEVICE_TEMP 5			  // This is the min temp that needs the device to be kept at. 
 #define MAX_DEWPOWER 254
 #define TEMP_PRECISION 9
 
-#define MAX_DEWHEATERS 2
-
-//#define BME280_I2C_Address (0x76)
 #define SHT31_I2C_Address (0x44)
 
 #define DEWMONITOR_MODE 1     //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
 
 double ObsTemp;
-//double Altitude;
 double DewPoint;
 
+double prevObsTemp = 0;
+double prevDewPoint = 0;
+#define TEMP_DIFF_BEFORE_UPDATE 2
+#define DEW_DIFF_BEFORE_UPDATE 2
+
 double Humidity;
-//double Pressure;
 
-double DewTemp1;
-int DewPower1 = 0;  //In Percentage
+double DewBandTmp1;
+double DewBandPwr1 = 0;  //Value between 0 - 254
+int DewBandPwrPct1 = 0; //In Percentage
 
-double DewTemp2;
-int DewPower2 = 0;  //In Percentage
+double DewBandTmp2;
+double DewBandPwr2 = 0;  //Value between 0 - 254
+int DewBandPwrPct2 = 0; //In Percentage
 
 int DispTimer;
 int UpdTimer; 
 int DispHeater;
 
 Timer updateTimer;
+int powerTimer = 0;
+#define POWERUPDATEINTERVAL 60
 
-//bool BME280Error = false;
 bool SHT31Error = false;
 
 bool DataAvailable = false;
 
 int DewMonitorMode = DEWMONITOR_MODE;          // On Startup the Dew Monitor will always run in Automatic Mode.
 
-//Adafruit_BME280 bme; // I2C
 Adafruit_SHT31 sht; //I2C
 
 OneWire tSensor1(PIN_TEMP_SENSOR1);
@@ -71,6 +73,8 @@ DallasTemperature sensor2(&tSensor2);
 /* Start of ObservingConditions functions */
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 
+/* Init Section */
+
 void InitObservingConditions()
 {
   InitSHT();
@@ -84,7 +88,7 @@ void InitObservingConditions()
 
   delay(5000);
 
-  updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), UpdateObservingConditionsData);
+  updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), Timer_Function_UpdateObservingConditionsData);
  
   Serial.println("Init Dew Mon Completed");
   
@@ -92,30 +96,17 @@ void InitObservingConditions()
   DewMonitorMode = 0;
 }
 
-/*
-void InitBME()
-{
-  Serial.println("Init BME280");
-  bme.begin(BME280_I2C_Address);
-  delay(1000);
-  BME280Error = GetBMEData();
-
-  if (BME280Error)
-    Serial.println("BME280 Init Failed");
-}
-*/
-
 void InitSHT()
 {
   Serial.println("Init SHT31");
-  sht.begin(SHT31_I2C_Address);
+  SHT31Error = !sht.begin(SHT31_I2C_Address);
   delay(1000);
-  SHT31Error = GetSHTData();
+  if (!SHT31Error)
+    SHT31Error = GetSHTData();
 
   if (SHT31Error)
     Serial.println("SHT31 Init Failed");
 }
-
 
 void InitDewChannel1()
 {
@@ -137,7 +128,11 @@ void InitDewChannel2()
   delay(1000);
 }
 
-void UpdateData()
+/* End Init Section */
+
+/* Update Display */
+
+void UpdateDisplayData()
 {
   int CurrentTime = millis() / 1000;
   updateTimer.update();
@@ -151,42 +146,11 @@ void UpdateData()
       DetermineDewHeatertoDisplay();
 
       if (DispHeater == 1)
-        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewTemp1, DewPower1, DewMonitorMode);
+        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp1, DewBandPwr1, DewMonitorMode);
       else
-        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewTemp2, DewPower2, DewMonitorMode);
+        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp2, DewBandPwr2, DewMonitorMode);
     }
   }
-}
-
-void UpdateObservingConditionsData()
-{
-  DataAvailable = true;
-
-  SHT31Error = GetSHTData();
-
-  if ((DewMonitorMode == 1) && (SHT31Error == false))      // If Dew Monitor in Manual Mode
-  {
-    sensor1.requestTemperatures(); // Send the command to get temperature readings
-    UpdateManualDewPower(1);
-
-    sensor2.requestTemperatures(); // Send the command to get temperature readings
-    UpdateManualDewPower(2);
-  }
-  else
-  {   
-    if (SHT31Error == false)  // If there is BME data and in Dew Monitor in Automatic Mode
-    {
-      sensor1.requestTemperatures(); // Send the command to get temperature readings
-      UpdateAutoDewPower(1);
-
-      sensor2.requestTemperatures(); // Send the command to get temperature readings
-      UpdateAutoDewPower(2);
-    }
-    else
-      DataAvailable = false;
-  }
-  if (DataAvailable)      // If Data Available then update the update last timer to 0
-    UpdTimer = millis() / 1000;
 }
 
 void DetermineDewHeatertoDisplay()
@@ -195,6 +159,68 @@ void DetermineDewHeatertoDisplay()
     DispHeater = 2;
   else
     DispHeater = 1;
+}
+
+/* End Update Display Data */
+
+/* Get & Calculate Data */
+
+boolean GetSHTData()
+{
+  float logEx;
+  boolean anError;
+
+  // Read temperature as Celsius (the default)
+  ObsTemp = sht.readTemperature();
+
+  Humidity = sht.readHumidity();
+  // Read temperature as Celsius (the default)
+
+  // Check if Temp or Humidity data from SHT31 has an error
+  if (isnan(ObsTemp) || isnan(Humidity))
+  {
+    // if error reading SHT31 set all to 0
+    ObsTemp = 0;
+    Humidity = 0;
+    DewPoint = 0;
+    anError = true;
+  }
+  else 
+  {
+    DewPoint = calcDewPointSlow(ObsTemp,Humidity);
+    anError = false;
+  }
+
+  if (isnan(DewPoint))
+    DewPoint = 0;
+
+  return anError;
+}
+
+//Dew point calculation as per: https://gist.github.com/Mausy5043/4179a715d616e6ad8a4eababee7e0281
+double calcDewPointSlow(double celsius, double humidity)
+{
+        double RATIO = 373.15 / (273.15 + celsius);  // RATIO was originally named A0, possibly confusing in Arduino context
+        double SUM = -7.90298 * (RATIO - 1);
+        SUM += 5.02808 * log10(RATIO);
+        SUM += -1.3816e-7 * (pow(10, (11.344 * (1 - 1/RATIO ))) - 1) ;
+        SUM += 8.1328e-3 * (pow(10, (-3.49149 * (RATIO - 1))) - 1) ;
+        SUM += log10(1013.246);
+        double VP = pow(10, SUM - 3) * humidity;
+        double T = log(VP/0.61078);   // temp var
+        return (241.88 * T) / (17.558 - T);
+}
+
+// delta max = 0.6544 wrt dewPoint()
+// 5x faster than dewPoint()
+// reference: http://en.wikipedia.org/wiki/Dew_point
+double calcDewPointFast(double celsius, double humidity)
+{
+        double a = 17.271;
+        double b = 237.7;
+        double temp = (a * celsius) / (b + celsius) + log(humidity*0.01);
+        double Td = (b * temp) / (a - temp);
+        return Td;
 }
 
 double GetSensorTemp(int sensor)
@@ -212,55 +238,22 @@ double GetSensorTemp(int sensor)
     return dTemp;
 }
 
-void UpdateAutoDewPower(int DewChannel)
+bool CollectData()
 {
-  double Temp = GetSensorTemp(DewChannel);
-  double DewPower = 0;
+  bool DataAvailable = false;
+  bool SHT31Error = GetSHTData();
 
-  if (Temp != 99)
+  if (!SHT31Error)  // If there is BME data and in Dew Monitor in Automatic Mode
   {
-    if (Temp > MIN_DEVICE_TEMP)
-        DewPower = calcDewHeaterPowerSetting(Temp, DewPoint);
-    else
-        DewPower = calcDewHeaterPowerSetting(Temp, MIN_DEVICE_TEMP);
+    sensor1.requestTemperatures(); // Send the command to get temperature readings
+    sensor2.requestTemperatures(); // Send the command to get temperature readings
+
+    DewBandTmp1 = GetSensorTemp(1);
+    DewBandTmp2 = GetSensorTemp(2);
+
+    DataAvailable = true;
   }
-
-  switch (DewChannel)
-  {
-    case 1:
-      DewTemp1 = Temp;
-      DewPower1 = (DewPower / MAX_DEWPOWER) * 100;  // Return Power in value of % for GUI.
-      analogWrite(PIN_DEW_CHANNEL1, DewPower);  // set the PWM value to be 0-254    
-        
-      break;
-    case 2:
-      DewTemp2 = Temp;
-      DewPower2 = (DewPower / MAX_DEWPOWER) * 100;   // Return Power in value of % for GUI.
-      analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
-        
-      break;
-  }
-}
-
-void UpdateManualDewPower(int DewChannel)   // DewPower is in percentage
-{
-  double Temp = GetSensorTemp(DewChannel);
-  double DewPower = 0;
-
-  switch (DewChannel)
-  {
-    case 1:
-      DewTemp1 = Temp;
-      DewPower = round(MAX_DEWPOWER * (DewPower1 * 0.01));
-      analogWrite(PIN_DEW_CHANNEL1, DewPower);   // set the PWM value to be 0-254    
-      break;
-
-    case 2:
-      DewTemp2 = Temp;
-      DewPower = round(MAX_DEWPOWER * (DewPower2 * 0.01));
-      analogWrite(PIN_DEW_CHANNEL2, DewPower);   // set the PWM value to be 0-254    
-      break;
-  }
+  return DataAvailable;
 }
 
 int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
@@ -276,100 +269,91 @@ int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
   return sensorPower;
 }
 
-boolean GetSHTData()
+void CalculateData()
 {
-  float logEx;
-  boolean anError;
-
-  // Read temperature as Celsius (the default)
-  ObsTemp = sht.readTemperature();
-
-  Humidity = sht.readHumidity();
-  // Read temperature as Celsius (the default)
-
-  // Check if Temp or Humidity data from BME280 has an error
-  if (isnan(ObsTemp) || isnan(Humidity))
+  double calcDewPoint = DewPoint;
+  
+  if (DewBandTmp1 != -99)
   {
-    // if error reading SHT31 set all to 0
-    ObsTemp = 0;
-    Humidity = 0;
-    DewPoint = 0;
-    anError = true;
-  }
-  else 
-  {
-    // if no error reading DHT22 calc dew point
-    // more complex dew point calculation
-    logEx = 0.66077 + 7.5 * ObsTemp / (237.3 + ObsTemp) + (log10(Humidity) - 2);
-    DewPoint = (logEx - 0.66077) * 237.3 / (0.66077 + 7.5 - logEx);
-    anError = false;
+    calcDewPoint = DewPoint;
+      
+    if (DewBandTmp1 <= MIN_DEVICE_TEMP)
+      calcDewPoint = MIN_DEVICE_TEMP;
+      
+    DewBandPwr1 = calcDewHeaterPowerSetting(DewBandTmp1, calcDewPoint);
+    DewBandPwrPct1 = (DewBandPwr1 / MAX_DEWPOWER) * 100;
   }
 
-  if (isnan(DewPoint))
-    DewPoint = 0;
-
-  return anError;
+  if (DewBandTmp2 != -99)
+  {
+    calcDewPoint = DewPoint;
+      
+    if (DewBandTmp2 <= MIN_DEVICE_TEMP)
+       calcDewPoint = MIN_DEVICE_TEMP;
+      
+    DewBandPwr2 = calcDewHeaterPowerSetting(DewBandTmp2, calcDewPoint);
+    DewBandPwrPct2 = (DewBandPwr2 / MAX_DEWPOWER) * 100;
+  }
 }
 
-/*
-boolean GetBMEData()
+/* End Get & Calculate Data */
+
+// This function is called every 10 seconds 
+void Timer_Function_UpdateObservingConditionsData()
 {
-  float logEx;
-  boolean anError;
-
-  // Read temperature as Celsius (the default)
-  ObsTemp = bme.readTemperature();
-
-  Pressure = round((bme.readPressure() / 100.0F));
-
-  Humidity = bme.readHumidity();
-  // Read temperature as Celsius (the default)
-
-  Altitude = bme.readAltitude(SEA_LEVEL_PRESSURE_HPA);
-  Pressure = round((bme.readPressure() / 100.0F));
-
-  // Check if Temp or Humidity data from BME280 has an error
-  if (isnan(ObsTemp) || isnan(Humidity))
+  bool performUpdate = false;
+  
+  if (CollectData())
   {
-    // if error reading BME280 set all to 0
-    ObsTemp = 0;
-    Humidity = 0;
-    DewPoint = 0;
-    Pressure = 0;
-    Altitude = 0;
-    anError = true;
+
+    if (DewMonitorMode == 0)  //If Dew Monitor in Auto mode, calculate power data.
+    {
+      CalculateData();
+
+      powerTimer = powerTimer + TEMP_UPDATE_INTERVAL;
+
+      int tempDiff = abs(ObsTemp - prevObsTemp);
+      int dewDiff = abs(DewPoint - prevDewPoint);
+
+      if (((tempDiff >= TEMP_DIFF_BEFORE_UPDATE) || (dewDiff >= DEW_DIFF_BEFORE_UPDATE)) && (powerTimer >= POWERUPDATEINTERVAL))
+      {
+        performUpdate = true;
+        powerTimer = 0;      
+      }    
+    }
+    else
+      performUpdate = true;
+
+    if (performUpdate)
+    {
+      UpdateDewPower(1);
+      UpdateDewPower(2);
+    }
+    
+    UpdTimer = millis() / 1000;
   }
-  else 
-  {
-    // if no error reading DHT22 calc dew point
-    // more complex dew point calculation
-    logEx = 0.66077 + 7.5 * ObsTemp / (237.3 + ObsTemp) + (log10(Humidity) - 2);
-    DewPoint = (logEx - 0.66077) * 237.3 / (0.66077 + 7.5 - logEx);
-    anError = false;
-  }
-
-  ObsTemp = ObsTemp - 5;
-
-  if (isnan(DewPoint))
-    DewPoint = 0;
-
-  return anError;
 }
-*/
+
+void UpdateDewPower(int DewChannel)
+{
+  int channelPin = PIN_DEW_CHANNEL2;
+  double tmpDewPower = DewBandPwr2;
+
+  if (DewChannel == 1)
+  {
+    channelPin = PIN_DEW_CHANNEL1;
+    tmpDewPower = DewBandPwr1;
+  }
+
+  analogWrite(channelPin, tmpDewPower);   // set the PWM value to be 0-254    
+}
+
+/* ASCOM Interaction Section */
 
 void DoObservingConditionsAction(String ASCOMcmd)
 {  
   switch ((char)ASCOMcmd[0])
   {
-/*
-    case 'a': //Get the current Altitude 
-      SendSerialCommand(observingconditionsId, String(Altitude));
-      break;
-
-    case 'b': //Get the current Pressure
-      SendSerialCommand(observingconditionsId, String(Pressure));
-      break;
-*/
     case 'd': //Get the current Dew Point
       SendSerialCommand(observingconditionsId, String(DewPoint));
       break;
@@ -395,7 +379,7 @@ void DoObservingConditionsAction(String ASCOMcmd)
       break;
 
     case 'r':   //Refresh Sensor data manually
-        UpdateObservingConditionsData();
+        Timer_Function_UpdateObservingConditionsData();
       break;
 
     case 't': //Get the temp of a Observatory Temp Sensor
@@ -411,9 +395,9 @@ void DoObservingConditionsAction(String ASCOMcmd)
 void GetDewHeaterTemp(String cmd)
 {
   if (cmd[1] == '1')
-    SendSerialCommand(observingconditionsId, String(DewTemp1));
+    SendSerialCommand(observingconditionsId, String(DewBandTmp1));
   else
-    SendSerialCommand(observingconditionsId, String(DewTemp2));
+    SendSerialCommand(observingconditionsId, String(DewBandTmp2));
 }
 
 void GetSetDewHeaterPower(String cmd)
@@ -427,9 +411,9 @@ void GetSetDewHeaterPower(String cmd)
 void GetDewHeaterPower(String cmd)
 {
   if (cmd[1] == '1')
-    SendSerialCommand(observingconditionsId, String(DewPower1));
+    SendSerialCommand(observingconditionsId, String(DewBandPwrPct1));
   else
-    SendSerialCommand(observingconditionsId, String(DewPower2));
+    SendSerialCommand(observingconditionsId, String(DewBandPwrPct2));
 }
 
 void SetDewHeaterPower(String cmd)
@@ -437,13 +421,15 @@ void SetDewHeaterPower(String cmd)
   int DewPower = cmd.substring(2).toInt();
   if (cmd[1] == '1')
   {
-    DewPower1 = DewPower;
-    SendSerialCommand(observingconditionsId, String(DewPower1));
+    DewBandPwrPct1 = DewPower;
+    DewBandPwr1 = round(MAX_DEWPOWER * (DewBandPwrPct1 * 0.01));
+    SendSerialCommand(observingconditionsId, String(DewBandPwrPct1));
   }
   else
   {
-    DewPower2 = DewPower;
-    SendSerialCommand(observingconditionsId, String(DewPower2));
+    DewBandPwrPct2 = DewPower;
+    DewBandPwr2 = round(MAX_DEWPOWER * (DewBandPwrPct2 * 0.01));
+    SendSerialCommand(observingconditionsId, String(DewBandPwrPct2));
   }
 }
 
@@ -462,20 +448,20 @@ void GetSetDewMonitorMode(String cmd)
 void returnAllData()
 {
   String returnData = "";
-//  returnData += "a" + String(Altitude) + "_";
-//  returnData += "b" + String(Pressure) + "_";
   returnData += "d" + String(DewPoint) + "_";
-  returnData += "e1" + String(DewTemp1) + "_";
-  returnData += "e2" + String(DewTemp2) + "_";
+  returnData += "e1" + String(DewBandTmp1) + "_";
+  returnData += "e2" + String(DewBandTmp2) + "_";
   returnData += "h" + String(Humidity) + "_";
   returnData += "i" + String(((millis() / 1000) - UpdTimer)) + "_";
   returnData += "m" + String(DewMonitorMode) + "_";
-  returnData += "p1" + String(DewPower1) + "_";
-  returnData += "p2" + String(DewPower2) + "_";
+  returnData += "p1" + String(DewBandPwrPct1) + "_";
+  returnData += "p2" + String(DewBandPwrPct2) + "_";
   returnData += "t" + String(ObsTemp);
 
   SendSerialCommand(observingconditionsId, returnData);
 }
+
+/* End of ASCOM Interaction Section */
 
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 /* End of ObservingConditions functions */

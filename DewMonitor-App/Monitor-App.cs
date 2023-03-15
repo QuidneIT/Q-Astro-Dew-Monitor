@@ -13,8 +13,8 @@ namespace ASCOM.QAstroDew
         private String aObservingID = "ASCOM.QAstroDew.ObservingConditions";
         private ASCOM.DriverAccess.ObservingConditions aObserving;
 
-        private String sLogFile = string.Format("Astro-Q-{0:yyyy-MM-dd_hh-mm-ss-tt}.log", DateTime.Now);
-        private String sLogFileLocation = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        //        private String sLogFile = string.Format("Astro-Q-{0:yyyy-MM-dd_hh-mm-ss-tt}.log", DateTime.Now);
+        //        private String sLogFileLocation = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private int iTrackBarDisabled = 0;
 
@@ -23,6 +23,7 @@ namespace ASCOM.QAstroDew
             CONNECTED,
             CONNECTING,
             DISCONNECTED,
+            DISCONNECTING,
             TIMEOUT,
             AWAITINGDATA,
             MANUALON,
@@ -35,13 +36,14 @@ namespace ASCOM.QAstroDew
         private const String cConnected = "Connected - Receiving Frequent Updates...";
         private const String cConnecting = "Connecting...";
         private const String cDisconnected = "Disconnected!";
+        private const String cDisconnecting = "Disconnecting";
         private const String cAwaitingData = "Connected - Awaiting Data...";
         private const String cSetup = "Setting up Dew Monitor...";
         private const String cError = "Error!!!!";
+        private const String cTimeout = "Disconnected! - Connection Failure...";
         private const String cManualOn = "Connected - Switching to Manual Mode...";
         private const String cManualOff = "Connected - Switching to Automatic Mode...";
         private const String cUpdateDew = "Connected - Updating Dew Band Power Setting...";
-        private const String cTimeout = "Disconnected! - Connection Failure...";
 
         private const int iSensorUpdateTimeout = 120;
 
@@ -55,20 +57,30 @@ namespace ASCOM.QAstroDew
         private double Temperature = 0;
         private double Humidity = 0;
         private double DewPoint = 0;
-//        private double Pressure = 0;
-//        private double Altitude = 0;
 
-        private bool bConnected
+        private bool isConnected = false;
+
+        private bool MonConnected
         {
-            get
-            {
-                try { return aObserving.Connected; }
-                catch { return false; }
-            }
+            get { return isConnected; }
             set
             {
-                try { aObserving.Connected = value; }
-                catch { }
+                StatusMessage(value ? Status.CONNECTING : Status.DISCONNECTING);
+
+                try
+                {
+                    aObserving.Connected = value;
+
+                    if (aObserving.Connected)
+                    {
+                        currenttimeTimer.Start();
+                        GetData();
+                        isConnected = true;
+                    }
+                }
+                catch {}
+
+                StatusMessage(isConnected ? Status.CONNECTED : Status.DISCONNECTED);
             }
         }
 
@@ -78,7 +90,7 @@ namespace ASCOM.QAstroDew
             InitialiseUI();
             InitialiseLog();
             ResetObservingData();
-            currenttimeTimer.Start();
+//            aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
         }
 
         private void InitialiseUI()
@@ -92,7 +104,7 @@ namespace ASCOM.QAstroDew
         #region Logging
         private void InitialiseLog()
         {
-//            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
+            //            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
             dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Tmp1,Pwr1,Tmp2,Pwr2");
         }
 
@@ -116,35 +128,31 @@ namespace ASCOM.QAstroDew
             switch (eStatus)
             {
                 case Status.CONNECTED:
-                    lblStatus.Text = cConnected;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Lime;
+                    UpdateStatusText(cConnected, MetroFramework.MetroColorStyle.Lime);
                     btnQAConnect.Text = "Disconnect";
                     btnQASetup.Enabled = false;
                     break;
                 case Status.CONNECTING:
-                    lblStatus.Text = cConnecting;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
+                    UpdateStatusText(cConnecting, MetroFramework.MetroColorStyle.Orange);
                     break;
                 case Status.AWAITINGDATA:
-                    lblStatus.Text = cAwaitingData;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Yellow;
+                    UpdateStatusText(cAwaitingData, MetroFramework.MetroColorStyle.Yellow);
                     break;
                 case Status.SETUP:
-                    lblStatus.Text = cSetup;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
-                    aObserving.SetupDialog();
+                    UpdateStatusText(cSetup, MetroFramework.MetroColorStyle.Orange);
+                    break;
+                case Status.DISCONNECTING:
+                    UpdateStatusText(cDisconnecting, MetroFramework.MetroColorStyle.Orange);
+                    StatusMessage(Status.DISCONNECTED);
                     break;
                 case Status.MANUALON:
-                    lblStatus.Text = cManualOn;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
+                    UpdateStatusText(cManualOn, MetroFramework.MetroColorStyle.Orange);
                     break;
                 case Status.MANUALOFF:
-                    lblStatus.Text = cManualOff;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
+                    UpdateStatusText(cManualOff, MetroFramework.MetroColorStyle.Orange);
                     break;
                 case Status.UPDATEDEW:
-                    lblStatus.Text = cUpdateDew;
-                    lblStatus.Style = MetroFramework.MetroColorStyle.Orange;
+                    UpdateStatusText(cUpdateDew, MetroFramework.MetroColorStyle.Orange);
                     break;
                 case Status.DISCONNECTED:
                     DisconnectStatus(cDisconnected);
@@ -158,26 +166,31 @@ namespace ASCOM.QAstroDew
             }
         }
 
+        private void UpdateStatusText(string statusMessage, MetroFramework.MetroColorStyle statusColour)
+        {
+            lblStatus.Text = statusMessage;
+            lblStatus.Style = statusColour;
+            Application.DoEvents();
+        }
+
         private void DisconnectStatus(String statusText)
         {
-            lblStatus.Text = statusText;
-            lblStatus.Style = MetroFramework.MetroColorStyle.Red;
+            if (timerUI != null)
+                timerUI.Stop();
+
             btnQAConnect.Text = "Connect";
             btnQASetup.Enabled = true;
             ResetObservingData();
+
+            UpdateStatusText(statusText, MetroFramework.MetroColorStyle.Red);
         }
 
         private void ResetObservingData()
         {
-            timerUI.Stop();
-            bConnected = false;
             tglDewManual.Enabled = false;
             lbDigSkyTemp.Value = 0;
             lbDigHumidity.Value = 0;
             lbDigDewPoint.Value = 0;
-//            lbDigPressure.Value = 0;
-//            lbDigAltitude.Value = 0;
-
             lbDigDewTemp1.Value = 0;
             trackBarDew1.Value = 0;
             lblDewPower1.Value = 0;
@@ -186,32 +199,54 @@ namespace ASCOM.QAstroDew
             trackBarDew2.Value = 0;
             lblDewPower2.Value = 0;
 
+            ResetASCOMObject();
+        }
+
+        private void ResetASCOMObject()
+        {
+            isConnected = false;
+
+            if (aObserving != null)
+                aObserving.Dispose();
+
+            System.Threading.Thread.Sleep(100);    
+
             aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
-            timerUI.Start();
+
+            System.Threading.Thread.Sleep(500);
         }
 
         private bool GetData()
         {
-            bool receivedData = true;
+            bool receivedData = false;
 
-            sensorUpdateTime = aObserving.TimeSinceLastUpdate("temperature");
-
-            if (!updateSensorTime())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
+            if (MonConnected)
             {
-                Temperature = aObserving.Temperature;
-                Humidity = aObserving.Humidity;
-                DewPoint = aObserving.DewPoint;
+                StatusMessage(Status.AWAITINGDATA);
+                try
+                {
+                    sensorUpdateTime = aObserving.TimeSinceLastUpdate("temperature");
 
-//                Pressure = aObserving.Pressure;
-//                Altitude = Convert.ToDouble(aObserving.Action("Altitude", ""));
+                    if (!updateSensorTime())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
+                    {
+                        Temperature = aObserving.Temperature;
+                        Humidity = aObserving.Humidity;
+                        DewPoint = aObserving.DewPoint;
 
-                DewTemp1 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "1")));
-                DewTemp2 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "2")));
-                DewPower1 = Convert.ToDouble(aObserving.Action("GetDewPower", "1"));
-                DewPower2 = Convert.ToDouble(aObserving.Action("GetDewPower", "2"));
+                        DewTemp1 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "1")));
+                        DewTemp2 = ValidateTemp(Convert.ToDouble(aObserving.Action("GetDewTemp", "2")));
+                        DewPower1 = Convert.ToDouble(aObserving.Action("GetDewPower", "1"));
+                        DewPower2 = Convert.ToDouble(aObserving.Action("GetDewPower", "2"));
+
+                        receivedData = true;
+                    }
+                    StatusMessage(Status.CONNECTED);
+                }
+                catch
+                {
+                    StatusMessage(Status.ERROR);
+                }
             }
-            else 
-                receivedData = false;
 
             return receivedData;
         }
@@ -222,46 +257,37 @@ namespace ASCOM.QAstroDew
 
             try
             {
-                updateCurrentTime();
+                //                updateCurrentTime();
 
-                if (bConnected)
+                if (GetData())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
                 {
-                    if (GetData())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
-                    {
-                        lbDigSkyTemp.Value = Temperature;
-                        lbDigHumidity.Value = Humidity;
-                        lbDigDewPoint.Value = DewPoint;
+                    lbDigSkyTemp.Value = Temperature;
+                    lbDigHumidity.Value = Humidity;
+                    lbDigDewPoint.Value = DewPoint;
 
-//                        lbDigPressure.Value = Pressure;
-//                        lbDigAltitude.Value = Altitude;
+                    lbDigDewTemp1.Value = DewTemp1;
+                    lblDewPower1.Value = DewPower1;
 
-                        lbDigDewTemp1.Value = DewTemp1;
-                        lblDewPower1.Value = DewPower1;
+                    lbDigDewTemp2.Value = DewTemp2;
+                    lblDewPower2.Value = DewPower2;
 
-                        lbDigDewTemp2.Value = DewTemp2;
-                        lblDewPower2.Value = DewPower2;
+                    trackBarDew1.Value = Convert.ToInt16(DewPower1);
+                    trackBarDew2.Value = Convert.ToInt16(DewPower2);
 
-                        trackBarDew1.Value = Convert.ToInt16(DewPower1);
-                        trackBarDew2.Value = Convert.ToInt16(DewPower2);
-
-                        //                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint + "," + aObserving.Pressure;
-                        string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint;
+                    string logMsg = aObserving.Temperature.ToString() + "," + aObserving.Humidity.ToString() + "," + aObserving.DewPoint;
 
 
-                        logMsg = logMsg + "," + DewTemp1.ToString() + "," + DewPower1.ToString();
-                        logMsg = logMsg + "," + DewTemp2.ToString() + "," + DewPower2.ToString();
+                    logMsg = logMsg + "," + DewTemp1.ToString() + "," + DewPower1.ToString();
+                    logMsg = logMsg + "," + DewTemp2.ToString() + "," + DewPower2.ToString();
 
-                        dLogger.LogMessage(logName, logMsg);
-                        StatusMessage((aObserving.Temperature == 0) ? Status.AWAITINGDATA : Status.CONNECTED);
-                        timerUI.Start();
-                    }
-                    else
-                    {
-                        StatusMessage(Status.TIMEOUT);
-                    }
+                    dLogger.LogMessage(logName, logMsg);
+                    timerUI.Start();
                 }
                 else
-                    StatusMessage(Status.DISCONNECTED);
+                {
+                    StatusMessage(Status.TIMEOUT);
+                }
+
             }
             catch
             {
@@ -289,16 +315,18 @@ namespace ASCOM.QAstroDew
             lblTmHH.Value = Double.Parse(DateTime.Now.ToString("HH"));
             lblTmMM.Value = Double.Parse(DateTime.Now.ToString("mm"));
             lblTmSS.Value = Double.Parse(DateTime.Now.ToString("ss"));
+            Application.DoEvents();
         }
 
         private void btnQASetup_Click(object sender, EventArgs e)
         {
-            if (bConnected)
+            if (MonConnected)
                 System.Windows.Forms.MessageBox.Show("Already connected, just press Connect");
             else
                 try
                 {
                     StatusMessage(Status.SETUP);
+                    aObserving.SetupDialog();
                     StatusMessage(Status.DISCONNECTED);
                 }
                 catch
@@ -312,21 +340,26 @@ namespace ASCOM.QAstroDew
         {
             try
             {
-                if (!bConnected)
+                if (!MonConnected)
                 {
                     StatusMessage(Status.CONNECTING);
-                    bConnected = true;
-                    if (bConnected)
+                    MonConnected = true;
+
+                    if (MonConnected)
                     {
                         StatusMessage(Status.AWAITINGDATA);
                         tglDewManual.Enabled = true;
                         timerUI.Start();
                     }
-                    else
-                        StatusMessage(Status.DISCONNECTED);
                 }
                 else
-                    StatusMessage(Status.DISCONNECTED);
+                {
+                    if (timerUI != null)
+                        timerUI.Stop();
+
+                    MonConnected = false;
+                    StatusMessage(Status.DISCONNECTING);
+                }
             }
             catch
             {
@@ -393,7 +426,7 @@ namespace ASCOM.QAstroDew
             }
             return temp;
         }
- 
+
         #region Form Functions
 
         private void lblMinimize_Click(object sender, EventArgs e)
@@ -403,6 +436,12 @@ namespace ASCOM.QAstroDew
 
         private void lblClose_Click(object sender, EventArgs e)
         {
+            if (MonConnected)
+            {
+                currenttimeTimer.Stop();
+                MonConnected = false;
+            }
+
             Environment.Exit(0);
         }
 
@@ -445,7 +484,7 @@ namespace ASCOM.QAstroDew
         {
             try
             {
-                if (bConnected)
+                if (MonConnected)
                     UpdateUI();
             }
             catch (Exception error)

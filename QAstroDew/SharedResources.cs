@@ -45,6 +45,9 @@ namespace ASCOM.QAstroDew
         private static TraceLogger traceLogger;
 
         public const string ASCOMfunction = "o";     //Define that communicate ObservingConditions to Arduino
+
+        private const string ASCOMIdentifier = "Q-Astro Dew Monitor";
+
         private const int SERIAL_CONNECTION_TIMEOUT = 20000;
 
         //
@@ -103,10 +106,6 @@ namespace ASCOM.QAstroDew
         /// <param name="message"></param>
         /// <returns></returns>
         /// 
-        public static string SendMessage(string message)
-        {
-            return SendMessage(ASCOMfunction, message);
-        }
 
         public static string SendMessage(string function, string message)
         {
@@ -142,11 +141,11 @@ namespace ASCOM.QAstroDew
                     }
                 }
             }
-            catch (Exception error)
+            catch
             {
                 SharedResources.connections = 0;
-                Connected = false;
-                return "";
+                SharedResources.Connected = false;
+                return "-1";
             }
         }
 
@@ -154,10 +153,8 @@ namespace ASCOM.QAstroDew
         {
             int startPos = strRec.IndexOf(ASCOMfunction[0]);
             
-            strRec = strRec.Substring(startPos);
-
+            strRec = strRec.Substring(startPos+1);
             strRec = strRec.Trim('#');
-            strRec = strRec.Trim(ASCOMfunction[0]);
 
             return strRec;
         }
@@ -196,9 +193,9 @@ namespace ASCOM.QAstroDew
                                     System.Threading.Thread.Sleep(SERIAL_CONNECTION_TIMEOUT);    //Stupid Arduino restarts when opening port - needs to wait
 
                                     string answer = SharedResources.rawCommand("", "i", true);
-                                    if (!answer.Contains("Q-Astro Dew Monitor"))
+                                    if (!answer.Contains(ASCOMIdentifier))
                                     {
-                                        MessageBox.Show("Q-Astro Dew device not detected at port " + SharedResources.SharedSerial.PortName, "Device not detected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        MessageBox.Show(ASCOMIdentifier + " device not detected at port " + SharedResources.SharedSerial.PortName, "Device not detected", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                         SharedResources.tl.LogMessage("Connected answer", "Wrong answer " + answer);
                                         SharedSerial.Connected = false;
                                     }
@@ -208,29 +205,29 @@ namespace ASCOM.QAstroDew
                                 else
                                 {
                                     SharedSerial.Connected = false;
-                                    MessageBox.Show("No Q-Astro Dew COM port set", "Please do set a COM port before trying to connect.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show(ASCOMIdentifier + " No COM port set", "Please do set a COM port before trying to connect.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                             }
                             catch (System.IO.IOException exception)
                             {
-                                MessageBox.Show("Q-Astro Dew Serial port not opened for " + SharedResources.SharedSerial.PortName, "Invalid port state", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show(ASCOMIdentifier + " Serial port not opened for " + SharedResources.SharedSerial.PortName, "Invalid port state", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 SharedResources.tl.LogMessage("Serial port not opened", exception.Message);
                                 Application.Exit();
                             }
                             catch (System.UnauthorizedAccessException exception)
                             {
-                                MessageBox.Show("Q-Astro Dew Access denied to serial port " + SharedResources.SharedSerial.PortName, "Access denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show(ASCOMIdentifier + " Access denied to serial port " + SharedResources.SharedSerial.PortName, "Access denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 SharedResources.tl.LogMessage("Access denied to serial port", exception.Message);
                                 Application.Exit();
                             }
                             catch (ASCOM.DriverAccessCOMException exception)
                             {
-                                MessageBox.Show("Q-Astro Dew ASCOM driver exception: " + exception.Message, "ASCOM driver exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show(ASCOMIdentifier + " ASCOM driver exception: " + exception.Message, "ASCOM driver exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 Application.Exit();
                             }
                             catch (System.Runtime.InteropServices.COMException exception)
                             {
-                                MessageBox.Show("Q-Astro Dew Serial port read timeout for port " + SharedResources.SharedSerial.PortName, "Timeout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show(ASCOMIdentifier + " Serial port read timeout for port " + SharedResources.SharedSerial.PortName, "Timeout", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 SharedResources.tl.LogMessage("QAstro Serial port read timeout", exception.Message);
                                 Application.Exit();
                             }

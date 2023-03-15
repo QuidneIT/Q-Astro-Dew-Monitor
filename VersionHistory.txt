@@ -66,5 +66,13 @@ Date	    Who	Vers	Description
 10-01-2023 RvE 4.3.1	Added cleanResponse() to the SharedResources.cs to clean the response incase of any corruption in the serial stream.
 						Arduino code updated to add a o to the response when performing an i# request.
 
+15-03-2023 RvE 4.5.0	Removed dll usb_relay_device.dll from the DewMonitor-App Resources as this is not used at all and is legacy code from a different project.
+						Remove #define MAX_DEWHEATERS 2 from the Arduino code as this is not used anymore.
+						Updated Driver.cs & SharedResources.cs to better implement Connect/Disconnect.
+						Updated Driver.cs & SharedResources.cs to better detect hardware disconnect.
+						Updated Monitor App for better error handling.
+						Arduino Code update for a more detailed Dew Point calculation.
+						Arduino Rewrite of the Dew Management code to enable a more stable power use.
+
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------
