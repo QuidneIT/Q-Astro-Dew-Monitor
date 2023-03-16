@@ -1,8 +1,7 @@
 # Q-Astro-Dew-Monitor
 Q- Astro Dew Monitor for a max of 2 dew heaters
 
-Version 4.3.0 is released. For this release you need to update the Arduino code as well.
-The big change between 4.2.0 and 4.3.0 is the move from a BME280 to a SHT31. The SHT31 is more reliable but does not provide Pressure & ALtitude data.
+Version 4.5.0 is released. For this release you need to update the Arduino code as well.
 
 You can find details about this Dew Monitor on my website: https://www.q-astro.com/#/ascom-auto-dew-monitor/
 For a version history you can have a look at the VersionHistory.txt file.
