@@ -39,7 +39,7 @@ namespace ASCOM.QAstroDew
         private static readonly object lockObject = new object();
 
         // Shared serial port. This will allow multiple drivers to use one single serial port.
-        private static ASCOM.Utilities.Serial s_sharedSerial = new ASCOM.Utilities.Serial();        // Shared serial port
+        private static readonly ASCOM.Utilities.Serial s_sharedSerial = new ASCOM.Utilities.Serial();        // Shared serial port
         private static int s_z = 0;     // counter for the number of connections to the serial port
 
         private static TraceLogger traceLogger;
@@ -59,9 +59,10 @@ namespace ASCOM.QAstroDew
             {
                 if (traceLogger == null)
                 {
-                    traceLogger = new TraceLogger("", "Q-Astro");
-
-                    traceLogger.Enabled = ASCOM.QAstroDew.Properties.Settings.Default.trace;
+                    traceLogger = new TraceLogger("", "Q-Astro")
+                    {
+                        Enabled = ASCOM.QAstroDew.Properties.Settings.Default.trace
+                    };
                 }
                 return traceLogger;
             }

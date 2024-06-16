@@ -108,29 +108,25 @@ void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, in
   {
     display.setFont(System5x7);
     display.clear();
-    if (hManual == 0)
-      display.println("Collected Data");
-    else 
-      display.println("Collected Data (M)");
-
+    display.println("Collected Data");
     display.println("");
   
-    display.print("Sky Temp:     ");
+    display.print("Sky Temp     : ");
     display.print(sTemp);
     display.println("c");
   
-    display.print("Humidity:     ");
+    display.print("Humidity     : ");
     display.print(hum);
     display.println("%");
   
-    display.print("Dew Point:    ");
+    display.print("Dew Point    : ");
     display.print(dPoint);
     display.println("c");
   
     display.print("Heater ");
     display.print(hHeater);
-    display.print(" Tmp: ");
-    if (hTemp != 99)
+    display.print(" Tmp : ");
+    if (hTemp != -127)
     {
       display.print(hTemp);
       display.println("c");
@@ -140,9 +136,15 @@ void WriteLCD(double sTemp, int hum, double dPoint,int hHeater, double hTemp, in
 
     display.print("Heater ");
     display.print(hHeater);
-    display.print(" Pwr: ");
+    display.print(" Pwr : ");
     display.print(hPower);
     display.println("%");
+
+    display.print("Mode         : ");
+    if (hManual == 0)
+      display.println("Auto");
+    else 
+      display.println("Manual");
   }
 }
 

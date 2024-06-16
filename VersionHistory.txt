@@ -74,5 +74,34 @@ Date	    Who	Vers	Description
 						Arduino Code update for a more detailed Dew Point calculation.
 						Arduino Rewrite of the Dew Management code to enable a more stable power use.
 
+21-03-2023 RvE 5.0.0	Update ASCOM to implement a number coding guidelines regarding casing and set a number of variables as ReadOnly.
+						Implement the use of Fixed percentage power increase in automated mode.
+						Implement the use of EEPROM storage for config settings that can be changed by the user via the Setup Dialog of the ASCOM Local Server driver.
+						Add more additional fields in the Setup to allow the update of config settings.
+						Update the ASCOM driver to allow the config settings to be send to the Arduino, via the Custom Actions function.
+						Update the call to the SetupDialog routine to ensure changes to the config settings are send back to the Arduino.
+						Arduino code changed to use a struct for the configuration values that can be set via the Setup.
+						Fixed bug where code was not acting correctly when Dew Band Temp Sensor was not working (e.g. returning value -127).
+						Change text on Monitor app from "Manual Dew" to "Manual Mode"
+						Ability to Name the Dew Bands in the Monitor App via the SetupDialog
+
+14/06/2024 RvE 5.0.5	Number of small updates and bug fixes.
+						Arduino Code: 
+							- Update time based varliables from int to unsigned long. This fixed the 9hr max connected runtime bug.
+							- Cleaned up the data on the display of the Dew Monitor.
+							- Bug fix where Temp of -127 instead of NC was shown on display is dew heater was not connected.
+							- Set initial values of int variables when defined.
+							- Fix bug where wrong value was shown on display for Dew Power. Was shown value between 0 - 256, where it should be a % value
+						Monitor App:
+							- Update data collection timer from 5 sec to 10 sec. Changed TimerUI object to dataUpdateTimer for code readability.
+							- The collection timer interval change is to check if this helps with a disconnection between computer and Dew Monitor (Arduino) after 9hrs.
+							- Added some additional comments to clarify the code.
+							- Changed name of boolean fun MonConnected to DewMonConnected.
+							- In GetData() changed variable bool receivedData to dataReceived.
+							- Spelling corrections in comments.
+						ASCOM Driver:
+							- Additional cleanup of ASCOM driver connection state when Dispose command is given.
+
+
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
 --------------------------------------------------------------------------------

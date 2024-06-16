@@ -49,13 +49,109 @@ namespace ASCOM.QAstroDew.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public int NrDewHeaters {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ConfigChanged {
             get {
-                return ((int)(this["NrDewHeaters"]));
+                return ((bool)(this["ConfigChanged"]));
             }
             set {
-                this["NrDewHeaters"] = value;
+                this["ConfigChanged"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DewMonitorMode {
+            get {
+                return ((int)(this["DewMonitorMode"]));
+            }
+            set {
+                this["DewMonitorMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public int MinDewBandTemp {
+            get {
+                return ((int)(this["MinDewBandTemp"]));
+            }
+            set {
+                this["MinDewBandTemp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int PowerPercentage {
+            get {
+                return ((int)(this["PowerPercentage"]));
+            }
+            set {
+                this["PowerPercentage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int PowerUpdateInterval {
+            get {
+                return ((int)(this["PowerUpdateInterval"]));
+            }
+            set {
+                this["PowerUpdateInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int DewThreshold {
+            get {
+                return ((int)(this["DewThreshold"]));
+            }
+            set {
+                this["DewThreshold"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int TempDiffBeforeUpdate {
+            get {
+                return ((int)(this["TempDiffBeforeUpdate"]));
+            }
+            set {
+                this["TempDiffBeforeUpdate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dew Band 1")]
+        public string NameBand1 {
+            get {
+                return ((string)(this["NameBand1"]));
+            }
+            set {
+                this["NameBand1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dew Band 2")]
+        public string NameBand2 {
+            get {
+                return ((string)(this["NameBand2"]));
+            }
+            set {
+                this["NameBand2"] = value;
             }
         }
     }

@@ -15,49 +15,71 @@
 #define PIN_TEMP_SENSOR2  4 
 #define PIN_DEW_CHANNEL2  3 
 
+#define TEMP_SENSOR_DISCONNECTED -127   // This is the return value when a dew band temp sensor is not working.
+
 #define TEMP_UPDATE_INTERVAL 10      // in seconds
 #define DISP_UPDATE_INTERVAL 5        // in seconds
 
-#define DEWPOINT_THRESHOLD 5
-#define MIN_DEVICE_TEMP 5			  // This is the min temp that needs the device to be kept at. 
-#define MAX_DEWPOWER 254
 #define TEMP_PRECISION 9
-
 #define SHT31_I2C_Address (0x44)
 
-#define DEWMONITOR_MODE 1     //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
+#define POWERSET1 0
+#define POWERSET2 64
+#define POWERSET3 127
+#define POWERSET4 192
+#define POWERSET5 254
 
-double ObsTemp;
-double DewPoint;
+#define MAX_DEWPOWER 254
+
+#define DEWMONITOR_AUTO_MODE 0  //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
+#define DEWMONITOR_MANUAL_MODE 1     //Determine default Dew Monitor Mode. 0 = Automatic, 1 = Manual
+int dewMonitorMode = DEWMONITOR_AUTO_MODE;
+
+#define DEWPOINT_DEF_THRESHOLD 5    // Threshold of min temp of the dewbands. Calculated Dewpoint + This Threshold is the minimum temp for a dewband.
+#define DEWBAND_DEF_MINTEMP 7       // Minimum temp of a dewband. This values needs to be equal or above the DEWPOINT_DEF_THRESHOLD.
+
+#define TEMP_DEF_DIFF_BEFORE_UPDATE 2   //Default Temp Difference before a power update will be applied.
+#define POWER_DEF_UPDATE_INTERVAL 30    //Default Time interval (sec) before a power update will be applied.
+#define ADJUST_DEF_POWER_FIXPERCENTAGE 1  //Determine default power adjustment method. Default is in fixed percentage (POWERSET1 - POWERSET5)
+
+// Dew variables that can be changed and will be stored in EEPROM Memory. They have a default value as defined above.
+struct dew_config {
+  int dewThreshold;
+  int minDewBandTemp;
+  int tempDiffBeforeUpdate;
+  int powerUpdateInterval; 
+  int adjustPowerFixPercentage;   
+  byte Saved;
+} dewConfig;
+
+double ObsTemp = 0;
+double DewPoint = 0;
 
 double prevObsTemp = 0;
 double prevDewPoint = 0;
-#define TEMP_DIFF_BEFORE_UPDATE 2
-#define DEW_DIFF_BEFORE_UPDATE 2
 
-double Humidity;
+double Humidity = 0;
 
-double DewBandTmp1;
+double DewBandTmp1 = 0;
 double DewBandPwr1 = 0;  //Value between 0 - 254
 int DewBandPwrPct1 = 0; //In Percentage
 
-double DewBandTmp2;
+double DewBandTmp2 = 0;
 double DewBandPwr2 = 0;  //Value between 0 - 254
 int DewBandPwrPct2 = 0; //In Percentage
 
-int DispTimer;
-int UpdTimer; 
-int DispHeater;
+unsigned long DispTimer;
+unsigned long UpdTimer; 
+int DispHeater = 0;
 
 Timer updateTimer;
 int powerTimer = 0;
-#define POWERUPDATEINTERVAL 60
 
 bool SHT31Error = false;
 
 bool DataAvailable = false;
 
-int DewMonitorMode = DEWMONITOR_MODE;          // On Startup the Dew Monitor will always run in Automatic Mode.
+//int dewMonitorMode = DEWMONITOR_DEF_MODE;          // On Startup the Dew Monitor will always run in Automatic Mode.
 
 Adafruit_SHT31 sht; //I2C
 
@@ -77,6 +99,9 @@ DallasTemperature sensor2(&tSensor2);
 
 void InitObservingConditions()
 {
+  Serial.println("Init EEPROM data..");
+  EEPROMLoad();
+  
   InitSHT();
 
   InitDewChannel1();
@@ -91,9 +116,13 @@ void InitObservingConditions()
   updateTimer.every((TEMP_UPDATE_INTERVAL * 1000), Timer_Function_UpdateObservingConditionsData);
  
   Serial.println("Init Dew Mon Completed");
-  
+
+  CollectData();
+  prevObsTemp = ObsTemp;
+  prevDewPoint = DewPoint;
+
   Serial.println("Switching to Auto Mode!");
-  DewMonitorMode = 0;
+  dewMonitorMode = DEWMONITOR_AUTO_MODE;
 }
 
 void InitSHT()
@@ -134,10 +163,10 @@ void InitDewChannel2()
 
 void UpdateDisplayData()
 {
-  int CurrentTime = millis() / 1000;
+  unsigned long CurrentTime = millis() / 1000;
   updateTimer.update();
 
-  if (ShowData && DataAvailable && (LCDPresent==1))
+  if (ShowData && (LCDPresent==1))
   {
     if (((CurrentTime - DispTimer) > DISP_UPDATE_INTERVAL) || (CurrentTime < DispTimer))
     {
@@ -146,9 +175,9 @@ void UpdateDisplayData()
       DetermineDewHeatertoDisplay();
 
       if (DispHeater == 1)
-        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp1, DewBandPwr1, DewMonitorMode);
+        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp1, DewBandPwrPct1, dewMonitorMode);
       else
-        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp2, DewBandPwr2, DewMonitorMode);
+        WriteLCD(ObsTemp, Humidity, DewPoint, DispHeater, DewBandTmp2, DewBandPwrPct2, dewMonitorMode);
     }
   }
 }
@@ -223,21 +252,6 @@ double calcDewPointFast(double celsius, double humidity)
         return Td;
 }
 
-double GetSensorTemp(int sensor)
-{
-  double dTemp;
-
-  if (sensor == 1)
-      dTemp = sensor1.getTempCByIndex(0);
-  else
-      dTemp = sensor2.getTempCByIndex(0);
-
-  if (dTemp == DEVICE_DISCONNECTED_C)
-    return 99;
-  else 
-    return dTemp;
-}
-
 bool CollectData()
 {
   bool DataAvailable = false;
@@ -248,50 +262,66 @@ bool CollectData()
     sensor1.requestTemperatures(); // Send the command to get temperature readings
     sensor2.requestTemperatures(); // Send the command to get temperature readings
 
-    DewBandTmp1 = GetSensorTemp(1);
-    DewBandTmp2 = GetSensorTemp(2);
+    DewBandTmp1 = sensor1.getTempCByIndex(0);
+    DewBandTmp2 = sensor2.getTempCByIndex(0);
 
     DataAvailable = true;
   }
   return DataAvailable;
 }
 
-int calcDewHeaterPowerSetting(double SensorTemp, double minTemp)
+int calcDewHeaterPowerSetting(double dewBandTemp)
 {
   double tempDiff = 0;                                              // set output duty cycle on temp diff between Rain Sensor Temp and ambient dew point 
-  int requiredSensorPower = 0;
   int sensorPower = 0;
+  double baselineTemp = DewPoint;                                   // Set Dewpoint as the baselineTemp for Dew Heater Power Calculation.
 
-  tempDiff = (minTemp + DEWPOINT_THRESHOLD) - SensorTemp;           // Heater ON if  temp Diff  >  SensorTemp - (Dew Point(C) + Threshold(C))
-  tempDiff = constrain(tempDiff, 0.0, DEWPOINT_THRESHOLD);       // restrict between 0 & threshold
-  sensorPower = MAX_DEWPOWER * (tempDiff / DEWPOINT_THRESHOLD);   // PWM 0 - 100% duty cycle EQUIV TO analog 0 - 254
+  if (dewBandTemp <= dewConfig.minDewBandTemp)                      // If the Dewband Temp = < than the Predefined Minimum Dewband Temp
+      baselineTemp = dewConfig.minDewBandTemp;                      // then set the baselineTemp as the Predefineid Minimum Dewband Temp. 
 
+  tempDiff = (((baselineTemp) + (dewConfig.dewThreshold)) - (dewBandTemp));   // Heater ON if  temp Diff  >  SensorTemp - (Baseline Temp(C) + Threshold(C))
+  tempDiff = constrain(tempDiff, 0.0, dewConfig.dewThreshold);       // restrict between 0 & threshold
+  sensorPower = MAX_DEWPOWER * (tempDiff / dewConfig.dewThreshold);   // PWM 0 - 100% duty cycle EQUIV TO analog 0 - 254
+
+  if (dewConfig.adjustPowerFixPercentage == 1)
+    sensorPower = calcAdjustedPower(sensorPower);
+  
   return sensorPower;
+}
+
+// This function determines 1 of 5 preset power settings (0%, 25%, 50%, 75%, 100%) - see #define POWERSET1 - 5
+// This is done by calculating the difference between sensorPower and the POWERSETx values. Which value is the lowest will determine the POWERSETx used.  
+int calcAdjustedPower(int sensorPwr)
+{
+  int initPwr = abs(POWERSET1 - sensorPwr);
+  int adjustedPwr = POWERSET1;
+
+  if ((abs(POWERSET2 - sensorPwr)) < initPwr)
+    adjustedPwr = POWERSET2;
+  
+  if ((abs(POWERSET3 - sensorPwr)) < adjustedPwr)
+    adjustedPwr = POWERSET3;
+
+  if ((abs(POWERSET4 - sensorPwr)) < adjustedPwr)
+    adjustedPwr = POWERSET4;
+
+  if ((abs(POWERSET5 - sensorPwr)) < adjustedPwr)
+    adjustedPwr = POWERSET5;
+
+  return adjustedPwr;
 }
 
 void CalculateData()
 {
-  double calcDewPoint = DewPoint;
-  
-  if (DewBandTmp1 != -99)
+  if (DewBandTmp1 != TEMP_SENSOR_DISCONNECTED)
   {
-    calcDewPoint = DewPoint;
-      
-    if (DewBandTmp1 <= MIN_DEVICE_TEMP)
-      calcDewPoint = MIN_DEVICE_TEMP;
-      
-    DewBandPwr1 = calcDewHeaterPowerSetting(DewBandTmp1, calcDewPoint);
+    DewBandPwr1 = calcDewHeaterPowerSetting(DewBandTmp1);
     DewBandPwrPct1 = (DewBandPwr1 / MAX_DEWPOWER) * 100;
   }
 
-  if (DewBandTmp2 != -99)
-  {
-    calcDewPoint = DewPoint;
-      
-    if (DewBandTmp2 <= MIN_DEVICE_TEMP)
-       calcDewPoint = MIN_DEVICE_TEMP;
-      
-    DewBandPwr2 = calcDewHeaterPowerSetting(DewBandTmp2, calcDewPoint);
+  if (DewBandTmp2 != TEMP_SENSOR_DISCONNECTED)
+  {      
+    DewBandPwr2 = calcDewHeaterPowerSetting(DewBandTmp2);
     DewBandPwrPct2 = (DewBandPwr2 / MAX_DEWPOWER) * 100;
   }
 }
@@ -301,36 +331,38 @@ void CalculateData()
 // This function is called every 10 seconds 
 void Timer_Function_UpdateObservingConditionsData()
 {
-  bool performUpdate = false;
+  bool performPwrAdjust = false;
   
-  if (CollectData())
+  if (CollectData())		//If collections of SHT31 the data & Dew Heaters temps is successful.
   {
-
-    if (DewMonitorMode == 0)  //If Dew Monitor in Auto mode, calculate power data.
+    if (dewMonitorMode == DEWMONITOR_AUTO_MODE)  //If Dew Monitor in Auto mode, calculate power data.
     {
-      CalculateData();
+      powerTimer = powerTimer + TEMP_UPDATE_INTERVAL;	 //Increase PowerTimer by update interval.
 
-      powerTimer = powerTimer + TEMP_UPDATE_INTERVAL;
+      int tempDiff = abs(ObsTemp - prevObsTemp);	//Calculate Observatory temp diff from previous ObsTemp.
+      int dewDiff = abs(DewPoint - prevDewPoint);	//Calculate Dewpoint diff from previous dewpoint.
 
-      int tempDiff = abs(ObsTemp - prevObsTemp);
-      int dewDiff = abs(DewPoint - prevDewPoint);
-
-      if (((tempDiff >= TEMP_DIFF_BEFORE_UPDATE) || (dewDiff >= DEW_DIFF_BEFORE_UPDATE)) && (powerTimer >= POWERUPDATEINTERVAL))
+	  // If Obs Temp diff bigger than preset or the PowerTimer update interval has been reached..
+      if ((tempDiff >= dewConfig.tempDiffBeforeUpdate) || (powerTimer >= dewConfig.powerUpdateInterval))
       {
-        performUpdate = true;
-        powerTimer = 0;      
+        CalculateData();			//Calculate Dewband power settings based on latest Observatory Temp and DewPoint.
+        
+        prevObsTemp = ObsTemp;		//Set Previous Observatory Temp variable.
+        prevDewPoint = DewPoint;	//Set Previous DewPoint variable.
+        performPwrAdjust = true;	
+        powerTimer = 0;      		//Reset PowerTimer interval.
       }    
     }
     else
-      performUpdate = true;
+      performPwrAdjust = true;  //If Dew Monitor in manual mode always Adjust the Dew Power Settings according to the manual settings given.
 
-    if (performUpdate)
+    if (performPwrAdjust)		//If Power Adjustment is needed.
     {
-      UpdateDewPower(1);
-      UpdateDewPower(2);
+      UpdateDewPower(1);		//Update Dew Power on Dewband 1.
+      UpdateDewPower(2);		//Update Dew POwer on Dewband 2.
     }
     
-    UpdTimer = millis() / 1000;
+    UpdTimer = millis() / 1000;  //Update Function Trigger timer.
   }
 }
 
@@ -354,6 +386,31 @@ void DoObservingConditionsAction(String ASCOMcmd)
 {  
   switch ((char)ASCOMcmd[0])
   {
+    case 'c':                   // Dew Monitor Configuration Settings
+      switch((char)ASCOMcmd[1])
+      {
+        case 'n':
+          GetSetMinDewBandTemp(ASCOMcmd.substring(1));
+          break;
+
+        case 'q': //Get Set Dew Power in fixed Percentages
+          GetSetPowerFixPercentageMode(ASCOMcmd.substring(1));
+          break;    
+      
+        case 'p':
+          GetSetPowerUpdateInterval(ASCOMcmd.substring(1));
+          break;
+
+        case 'd':
+          GetSetDewThresholdUpdate(ASCOMcmd.substring(1));
+          break;
+    
+        case 't':
+          GetSetTempDiffBeforeUpdate(ASCOMcmd.substring(1));
+          break;
+      }
+      break;
+
     case 'd': //Get the current Dew Point
       SendSerialCommand(observingconditionsId, String(DewPoint));
       break;
@@ -366,26 +423,26 @@ void DoObservingConditionsAction(String ASCOMcmd)
       SendSerialCommand(observingconditionsId, String(Humidity));
       break;
 
-    case 'i': //Get Time since last Sensor update (in Sec)
-      SendSerialCommand(observingconditionsId, String(((millis() / 1000) - UpdTimer)));
-      break;
-
     case 'm': //Get or Set Dew Monitor Mode (Manual or Auto)
       GetSetDewMonitorMode(ASCOMcmd);
+      break;
+
+    case 'i': //Get Time since last Sensor update (in Sec)
+      SendSerialCommand(observingconditionsId, String(((millis() / 1000) - UpdTimer)));
       break;
 
     case 'p': //Get Set Dew Heater Power    
       GetSetDewHeaterPower(ASCOMcmd);
       break;
-
+    
     case 'r':   //Refresh Sensor data manually
-        Timer_Function_UpdateObservingConditionsData();
+      Timer_Function_UpdateObservingConditionsData();
       break;
 
     case 't': //Get the temp of a Observatory Temp Sensor
       SendSerialCommand(observingconditionsId, String(ObsTemp));
       break;
-
+       
     case 'z': //Return all data in a single string
       returnAllData();
       break;
@@ -419,6 +476,7 @@ void GetDewHeaterPower(String cmd)
 void SetDewHeaterPower(String cmd)
 {
   int DewPower = cmd.substring(2).toInt();
+
   if (cmd[1] == '1')
   {
     DewBandPwrPct1 = DewPower;
@@ -438,11 +496,65 @@ void GetSetDewMonitorMode(String cmd)
   if (cmd.length() > 1)
   {
     if (cmd[1] == '1')    // Set Dew Monitor to Manual
-      DewMonitorMode = 1;
+      dewMonitorMode = DEWMONITOR_MANUAL_MODE;
     else    
-      DewMonitorMode = 0;
+      dewMonitorMode = DEWMONITOR_AUTO_MODE;
   }
-  SendSerialCommand(observingconditionsId, String(DewMonitorMode));
+  SendSerialCommand(observingconditionsId, String(dewMonitorMode));
+}
+
+void GetSetPowerFixPercentageMode(String cmd)
+{
+  if (cmd.length() > 2)
+  {
+    if (cmd[1] == '1')    // Set Dew Monitor to Manual
+      dewConfig.adjustPowerFixPercentage = 1;
+    else    
+      dewConfig.adjustPowerFixPercentage = 0;
+    
+    EEPROMSave();
+  }
+  SendSerialCommand(observingconditionsId, String(dewConfig.adjustPowerFixPercentage));
+}
+
+void GetSetPowerUpdateInterval(String cmd)
+{
+  if (cmd.length() > 2)
+  {
+    dewConfig.powerUpdateInterval = cmd.substring(1).toInt();
+    EEPROMSave();
+  }
+  SendSerialCommand(observingconditionsId, String(dewConfig.powerUpdateInterval));
+}
+
+void GetSetDewThresholdUpdate(String cmd)
+{
+  if (cmd.length() > 2)
+  {
+    dewConfig.dewThreshold = cmd.substring(1).toInt();
+    EEPROMSave();
+  }
+  SendSerialCommand(observingconditionsId, String(dewConfig.dewThreshold));
+}
+
+void GetSetMinDewBandTemp(String cmd)
+{
+  if (cmd.length() > 2)
+  {
+    dewConfig.minDewBandTemp = cmd.substring(1).toInt();
+    EEPROMSave();
+  }
+  SendSerialCommand(observingconditionsId, String(dewConfig.minDewBandTemp));
+}
+
+void GetSetTempDiffBeforeUpdate(String cmd)
+{
+  if (cmd.length() > 2)
+  {
+    dewConfig.tempDiffBeforeUpdate = cmd.substring(1).toInt();
+    EEPROMSave();
+  }
+  SendSerialCommand(observingconditionsId, String(dewConfig.tempDiffBeforeUpdate));
 }
 
 void returnAllData()
@@ -453,10 +565,15 @@ void returnAllData()
   returnData += "e2" + String(DewBandTmp2) + "_";
   returnData += "h" + String(Humidity) + "_";
   returnData += "i" + String(((millis() / 1000) - UpdTimer)) + "_";
-  returnData += "m" + String(DewMonitorMode) + "_";
   returnData += "p1" + String(DewBandPwrPct1) + "_";
   returnData += "p2" + String(DewBandPwrPct2) + "_";
-  returnData += "t" + String(ObsTemp);
+  returnData += "t" + String(ObsTemp) + "_";
+  returnData += "m" + String(dewMonitorMode) + "_";
+  returnData += "cn" + String((dewConfig.minDewBandTemp)) + "_";
+  returnData += "cq" + String(dewConfig.adjustPowerFixPercentage) + "_";
+  returnData += "cp" + String(dewConfig.powerUpdateInterval) + "_";
+  returnData += "cw" + String(dewConfig.dewThreshold) + "_";
+  returnData += "ct" + String(dewConfig.tempDiffBeforeUpdate);
 
   SendSerialCommand(observingconditionsId, returnData);
 }

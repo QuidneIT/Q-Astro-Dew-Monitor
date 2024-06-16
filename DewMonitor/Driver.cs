@@ -55,17 +55,16 @@ namespace ASCOM.QAstroDew
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        private static string driverDescription = "ASCOM ObservingConditions Driver for Q-Astro Dew.";
-        private static string driverShortName = "Q-Astro Dew";
-        private static int interfaceVersion = 2;
+        private static readonly string driverDescription = "ASCOM ObservingConditions Driver for Q-Astro Dew.";
+        private static readonly string driverShortName = "Q-Astro Dew";
+        private static readonly int interfaceVersion = 2;
 
         /// <summary>
         /// Private variable to hold the connected state
         /// </summary>
-        private bool connectedState;
+        private bool connectedState = false;
 
-        private string ASCOMfunction = "o";     //Define that we communicate with Dew Monitor to Arduino
-
+        private readonly string ASCOMfunction = "o";     //Define that we communicate with Dew Monitor to Arduino
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QAstro"/> class.
@@ -108,13 +107,20 @@ namespace ASCOM.QAstroDew
         {
             get
             {
-                var CustomActions = new ArrayList();
-                CustomActions.Add("GetDewTemp");
-                CustomActions.Add("GetDewPower");
-                CustomActions.Add("ManualMode");
-                CustomActions.Add("SetDewPower");
-//                CustomActions.Add("Altitude");
-                CustomActions.Add("AllData");
+                var CustomActions = new ArrayList
+                {
+                    "GetDewTemp",
+                    "GetDewPower",
+                    "SetDewPower",
+                    "AllData",
+                    "ManualMode",
+                    "MinDewBandTemp",
+                    "PowerFixPercentageMode",
+                    "PowerUpdateInterval",
+                    "DewThresholdUpdate",
+                    "TempDiffBeforeUpdate",
+                    "NameDewBand"
+                };
 
                 string msgForLog = "";
                 foreach (String act in CustomActions)
@@ -127,7 +133,9 @@ namespace ASCOM.QAstroDew
 
         public string Action(string actionName, string actionParameters)
         {
-            String returnVal = "";
+            string command = "";
+            bool remote = true;
+            string response = "";
 
             SharedResources.tl.LogMessage(driverShortName + "Action", actionName + "-" + actionParameters);
 
@@ -136,33 +144,67 @@ namespace ASCOM.QAstroDew
             switch (actionName)
             {
                 case "GetDewTemp":
-                    returnVal = SharedResources.SendMessage(ASCOMfunction, "e" + actionParameters);
+                    command = "e";
                     break;
 
                 case "GetDewPower":
-                    returnVal = SharedResources.SendMessage(ASCOMfunction, "p" + actionParameters);
+                    command = "p";
                     break;
 
                 case "SetDewPower":
                     string heater = actionParameters.Substring(0, actionParameters.IndexOf(','));
                     string value = actionParameters.Substring(actionParameters.IndexOf(',') + 1);
 
-                    returnVal = SharedResources.SendMessage(ASCOMfunction, "p" + heater + value);
+                    actionParameters = heater + value;
+
+                    command = "p";
                     break;
 
                 case "ManualMode":
-                    returnVal = SharedResources.SendMessage(ASCOMfunction, "m" + actionParameters);
+                    command = "m";
+                    break;
+
+                case "MinDewBandTemp":
+                    command = "cn";
+                    break;
+
+                case "PowerFixPercentageMode":
+                    command = "cq";
+                    break;
+
+                case "PowerUpdateInterval":
+                    command = "cp";
+                    break;
+
+                case "DewThresholdUpdate":
+                    command = "cd";
+                    break;
+
+                case "TempDiffBeforeUpdate":
+                    command = "ct";
                     break;
 
                 case "AllData":
-                    returnVal = SharedResources.SendMessage(ASCOMfunction, "z");
+                    command = "z";
                     break;
 
+                case "NameDewBand":
+                    if (actionParameters == "1")
+                        response = Properties.Settings.Default.NameBand1.ToString();
+                    else
+                        response = Properties.Settings.Default.NameBand2.ToString();
+
+                    remote = false;
+                    break;
                 default:
                     throw new ASCOM.ActionNotImplementedException(driverShortName + " Action " + actionName + " is not implemented by this driver");
 
             }
-            return returnVal;
+
+            if (remote)
+                return SharedResources.SendMessage(ASCOMfunction, command + actionParameters);
+            else
+                return response;
         }
 
         public void CommandBlind(string command, bool raw)
@@ -185,6 +227,7 @@ namespace ASCOM.QAstroDew
 
         public void Dispose()
         {
+            Connected = false;
         }
 
         public bool Connected
@@ -206,6 +249,29 @@ namespace ASCOM.QAstroDew
                         SharedResources.tl.LogMessage(driverShortName + "Connected Set", "Connecting to port " + ASCOM.QAstroDew.Properties.Settings.Default.COMPort);
                         SharedResources.Connected = true;
                         connectedState = SharedResources.Connected;
+
+                        if (IsConnected)
+                        {
+                            if(Properties.Settings.Default.ConfigChanged)
+                            {
+                                Action("MinDewBandTemp", Properties.Settings.Default.MinDewBandTemp.ToString());
+                                Action("PowerFixPercentageMode", Properties.Settings.Default.PowerPercentage.ToString());
+                                Action("PowerUpdateInterval", Properties.Settings.Default.PowerUpdateInterval.ToString());
+                                Action("DewThresholdUpdate", Properties.Settings.Default.DewThreshold.ToString());
+                                Action("TempDiffBeforeUpdate", Properties.Settings.Default.TempDiffBeforeUpdate.ToString());   
+
+                                Properties.Settings.Default.ConfigChanged = false;
+                                Properties.Settings.Default.Save();
+                            }
+
+                            Properties.Settings.Default.TempDiffBeforeUpdate = Convert.ToInt16(Action("TempDiffBeforeUpdate", ""));
+                            Properties.Settings.Default.DewThreshold = Convert.ToInt16(Action("DewThresholdUpdate", ""));
+                            Properties.Settings.Default.PowerPercentage = Convert.ToInt16(Action("PowerFixPercentageMode", ""));
+                            Properties.Settings.Default.PowerUpdateInterval = Convert.ToInt16(Action("PowerUpdateInterval", ""));
+                            Properties.Settings.Default.MinDewBandTemp = Convert.ToInt16(Action("MinDewBandTemp", ""));
+
+                            Properties.Settings.Default.Save();
+                        }
                     }
                     else
                     {
@@ -358,17 +424,6 @@ namespace ASCOM.QAstroDew
             }
         }
 
-        /*        public double Pressure
-                {
-                    get
-                    {
-                        string pressure = SharedResources.SendMessage("b");
-                        SharedResources.tl.LogMessage(driverShortName + " Pressure", pressure);
-                        return Convert.ToDouble(pressure);
-                    }
-                }
-        */
-
         /// <summary>
         /// Rain rate at the observatory
         /// </summary>
@@ -393,7 +448,6 @@ namespace ASCOM.QAstroDew
         {
             SharedResources.SendMessage(ASCOMfunction, "r");
             SharedResources.tl.LogMessage(driverShortName + " Refresh", "");
-//            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -416,9 +470,7 @@ namespace ASCOM.QAstroDew
                 case "temperature":
                     return "Temperature in degrees celcius";
                 case "averageperiod":
-//                    return "Average period in hours, immediate values are only available";
                 case "pressure":
-//                    return "Atmospheric pressure in bar";
                 case "rainrate":
                 case "skybrightness":
                 case "skyquality":
@@ -595,19 +647,14 @@ namespace ASCOM.QAstroDew
 
         public double DewHeaterTemp(int heater)
         {
-            string recTemp = "";
-
-            recTemp = SharedResources.SendMessage(ASCOMfunction, "e" + heater.ToString());
-
+            string recTemp = SharedResources.SendMessage(ASCOMfunction, "e" + heater.ToString());
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Temp", recTemp);
             return Convert.ToDouble(recTemp);
         }
 
         public double DewHeaterPower(int heater)
         {
-            string recPower = "";
-
-            recPower = SharedResources.SendMessage(ASCOMfunction, "p" + heater.ToString());
+            string recPower = SharedResources.SendMessage(ASCOMfunction, "p" + heater.ToString());
 
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Power", recPower);
             return Convert.ToDouble(recPower);

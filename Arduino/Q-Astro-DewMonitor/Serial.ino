@@ -1,10 +1,12 @@
 /* ---------------------------------------------------------------------------------------------------------------------------- */
 /* Start of Serial Commands */
 
+#define SERIALSPEED 9600
+
 void InitSerial()
 {
   Serial.flush();
-  Serial.begin(9600);  // Baud rate, make sure this is the same as ASCOM driver
+  Serial.begin(SERIALSPEED);  // Baud rate, make sure this is the same as ASCOM driver
   ASCOMcmd = "";
   ASCOMcmdComplete = false; 
 
@@ -13,7 +15,7 @@ void InitSerial()
 
 void serialEvent() 
 {
-  while (Serial.available()) 
+  while (Serial.available() > 0) 
   {
     // get the new byte:
     char inChar = (char)Serial.read();

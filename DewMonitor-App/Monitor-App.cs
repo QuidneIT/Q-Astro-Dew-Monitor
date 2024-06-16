@@ -8,13 +8,10 @@ namespace ASCOM.QAstroDew
     public partial class MonitorApp : Form
     {
         private static TraceLogger dataLogger;
-        private static string logName = "Q-Astro Dew Monitor";
+        private static readonly string logName = "Q-Astro Dew Monitor";
 
-        private String aObservingID = "ASCOM.QAstroDew.ObservingConditions";
+        private readonly String aObservingID = "ASCOM.QAstroDew.ObservingConditions";
         private ASCOM.DriverAccess.ObservingConditions aObserving;
-
-        //        private String sLogFile = string.Format("Astro-Q-{0:yyyy-MM-dd_hh-mm-ss-tt}.log", DateTime.Now);
-        //        private String sLogFileLocation = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private int iTrackBarDisabled = 0;
 
@@ -45,6 +42,8 @@ namespace ASCOM.QAstroDew
         private const String cManualOff = "Connected - Switching to Automatic Mode...";
         private const String cUpdateDew = "Connected - Updating Dew Band Power Setting...";
 
+        private const int TEMP_SENSOR_DISCONNECTED = -127;
+
         private const int iSensorUpdateTimeout = 120;
 
         private double sensorUpdateTime = 0;
@@ -60,7 +59,9 @@ namespace ASCOM.QAstroDew
 
         private bool isConnected = false;
 
-        private bool MonConnected
+        private int updateInterval = 10000;  // (Milliseconds)
+
+        private bool DewMonConnected
         {
             get { return isConnected; }
             set
@@ -74,6 +75,9 @@ namespace ASCOM.QAstroDew
                     if (aObserving.Connected)
                     {
                         currenttimeTimer.Start();
+                        lblDewBandName1.Text = aObserving.Action("NameDewBand","1") + ":";
+                        lblDewBandName2.Text = aObserving.Action("NameDewBand","2") + ":";
+                        GetConfigData();
                         GetData();
                         isConnected = true;
                     }
@@ -84,13 +88,35 @@ namespace ASCOM.QAstroDew
             }
         }
 
+        private void GetConfigData()
+        {
+            cfgMinDewBandTmp.Value = ValidateTemp(Convert.ToDouble(aObserving.Action("MinDewBandTemp","")));
+            cfgMinDewPoint.Value = ValidateTemp(Convert.ToDouble(aObserving.Action("DewThresholdUpdate", "")));
+            cfgTmpDiffBefUpdate.Value = ValidateTemp(Convert.ToDouble(aObserving.Action("TempDiffBeforeUpdate", "")));
+            cfgPwrUpdFreq.Value = Convert.ToDouble(aObserving.Action("PowerUpdateInterval", ""));
+
+            string value = aObserving.Action("PowerFixPercentageMode", "");
+            if (value == "1")
+                cfgDewFixedIncr.Text = "Yes";
+            else
+                cfgDewFixedIncr.Text = "No";
+        }
+
+        private void ResetConfigData()
+        {
+            cfgMinDewBandTmp.Value = 0;
+            cfgMinDewPoint.Value = 0;
+            cfgTmpDiffBefUpdate.Value= 0;
+            cfgPwrUpdFreq.Value= 0;
+            cfgDewFixedIncr.Text = "";
+        }
+
         public MonitorApp()
         {
             InitializeComponent();
             InitialiseUI();
             InitialiseLog();
             ResetObservingData();
-//            aObserving = new ASCOM.DriverAccess.ObservingConditions(aObservingID);
         }
 
         private void InitialiseUI()
@@ -99,29 +125,8 @@ namespace ASCOM.QAstroDew
             tglDewManual.Enabled = false;
             trackBarDew1.Enabled = false;
             trackBarDew2.Enabled = false;
+            dataUpdateTimer.Interval = updateInterval;
         }
-
-        #region Logging
-        private void InitialiseLog()
-        {
-            //            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
-            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Tmp1,Pwr1,Tmp2,Pwr2");
-        }
-
-        private static TraceLogger dLogger
-        {
-            get
-            {
-                if (dataLogger == null)
-                {
-                    dataLogger = new TraceLogger("", logName);
-                    dataLogger.Enabled = true;
-                }
-                return dataLogger;
-            }
-        }
-
-        #endregion
 
         private void StatusMessage(Status eStatus)
         {
@@ -175,8 +180,7 @@ namespace ASCOM.QAstroDew
 
         private void DisconnectStatus(String statusText)
         {
-            if (timerUI != null)
-                timerUI.Stop();
+            dataUpdateTimer?.Stop();
 
             btnQAConnect.Text = "Connect";
             btnQASetup.Enabled = true;
@@ -199,6 +203,8 @@ namespace ASCOM.QAstroDew
             trackBarDew2.Value = 0;
             lblDewPower2.Value = 0;
 
+            ResetConfigData();
+
             ResetASCOMObject();
         }
 
@@ -206,8 +212,7 @@ namespace ASCOM.QAstroDew
         {
             isConnected = false;
 
-            if (aObserving != null)
-                aObserving.Dispose();
+            aObserving?.Dispose();
 
             System.Threading.Thread.Sleep(100);    
 
@@ -218,16 +223,16 @@ namespace ASCOM.QAstroDew
 
         private bool GetData()
         {
-            bool receivedData = false;
+            bool dataReceived = false;
 
-            if (MonConnected)
+            if (DewMonConnected)
             {
                 StatusMessage(Status.AWAITINGDATA);
                 try
                 {
                     sensorUpdateTime = aObserving.TimeSinceLastUpdate("temperature");
 
-                    if (!updateSensorTime())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
+                    if (!UpdateSensorTime())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
                     {
                         Temperature = aObserving.Temperature;
                         Humidity = aObserving.Humidity;
@@ -238,7 +243,7 @@ namespace ASCOM.QAstroDew
                         DewPower1 = Convert.ToDouble(aObserving.Action("GetDewPower", "1"));
                         DewPower2 = Convert.ToDouble(aObserving.Action("GetDewPower", "2"));
 
-                        receivedData = true;
+                        dataReceived = true;
                     }
                     StatusMessage(Status.CONNECTED);
                 }
@@ -248,17 +253,15 @@ namespace ASCOM.QAstroDew
                 }
             }
 
-            return receivedData;
+            return dataReceived;
         }
 
         private void UpdateUI()
         {
-            timerUI.Stop();
+            dataUpdateTimer.Stop();
 
             try
             {
-                //                updateCurrentTime();
-
                 if (GetData())        //Update time Sensor Time UI and check if Sensor Update Timeout has been exceeded
                 {
                     lbDigSkyTemp.Value = Temperature;
@@ -280,8 +283,8 @@ namespace ASCOM.QAstroDew
                     logMsg = logMsg + "," + DewTemp1.ToString() + "," + DewPower1.ToString();
                     logMsg = logMsg + "," + DewTemp2.ToString() + "," + DewPower2.ToString();
 
-                    dLogger.LogMessage(logName, logMsg);
-                    timerUI.Start();
+                    DLogger.LogMessage(logName, logMsg);
+                    dataUpdateTimer.Start();
                 }
                 else
                 {
@@ -295,7 +298,7 @@ namespace ASCOM.QAstroDew
             }
         }
 
-        private bool updateSensorTime()
+        private bool UpdateSensorTime()
         {
             bool timeOut = false;
 
@@ -310,7 +313,7 @@ namespace ASCOM.QAstroDew
             return timeOut;
         }
 
-        private void updateCurrentTime()
+        private void UpdateCurrentTime()
         {
             lblTmHH.Value = Double.Parse(DateTime.Now.ToString("HH"));
             lblTmMM.Value = Double.Parse(DateTime.Now.ToString("mm"));
@@ -318,9 +321,9 @@ namespace ASCOM.QAstroDew
             Application.DoEvents();
         }
 
-        private void btnQASetup_Click(object sender, EventArgs e)
+        private void BtnQASetup_Click(object sender, EventArgs e)
         {
-            if (MonConnected)
+            if (DewMonConnected)
                 System.Windows.Forms.MessageBox.Show("Already connected, just press Connect");
             else
                 try
@@ -336,28 +339,27 @@ namespace ASCOM.QAstroDew
                 }
         }
 
-        private void btnQAConnect_Click(object sender, EventArgs e)
+        private void BtnQAConnect_Click(object sender, EventArgs e)
         {
             try
             {
-                if (!MonConnected)
+                if (!DewMonConnected)
                 {
                     StatusMessage(Status.CONNECTING);
-                    MonConnected = true;
+                    DewMonConnected = true;
 
-                    if (MonConnected)
+                    if (DewMonConnected)
                     {
                         StatusMessage(Status.AWAITINGDATA);
                         tglDewManual.Enabled = true;
-                        timerUI.Start();
+                        dataUpdateTimer.Start();
                     }
                 }
                 else
                 {
-                    if (timerUI != null)
-                        timerUI.Stop();
+                    dataUpdateTimer?.Stop();
 
-                    MonConnected = false;
+                    DewMonConnected = false;
                     StatusMessage(Status.DISCONNECTING);
                 }
             }
@@ -367,7 +369,7 @@ namespace ASCOM.QAstroDew
             }
         }
 
-        private void tglDewManual_CheckedChanged(object sender, EventArgs e)
+        private void TglDewManual_CheckedChanged(object sender, EventArgs e)
         {
             int iDewManual = 0;
 
@@ -388,23 +390,23 @@ namespace ASCOM.QAstroDew
             trackBarDew1.Enabled = tglDewManual.Checked;
             trackBarDew2.Enabled = tglDewManual.Checked;
         }
-        private void trackBarDew1_Scroll(object sender, EventArgs e)
+        private void TrackBarDew1_Scroll(object sender, EventArgs e)
         {
             lblDewPower1.Value = trackBarDew1.Value;
         }
 
-        private void trackBarDew1_MouseUp(object sender, EventArgs e)
+        private void TrackBarDew1_MouseUp(object sender, EventArgs e)
         {
             aObserving.Action("SetDewPower", "1," + trackBarDew1.Value.ToString());
             trackerUpdateTimer.Start();
         }
 
-        private void trackBarDew2_Scroll(object sender, EventArgs e)
+        private void TrackBarDew2_Scroll(object sender, EventArgs e)
         {
             lblDewPower2.Value = trackBarDew2.Value;
         }
 
-        private void trackBarDew2_MouseUp(object sender, EventArgs e)
+        private void TrackBarDew2_MouseUp(object sender, EventArgs e)
         {
             aObserving.Action("SetDewPower", "2," + trackBarDew2.Value.ToString());
             trackerUpdateTimer.Start();
@@ -414,7 +416,7 @@ namespace ASCOM.QAstroDew
         {
             try
             {
-                if (temp > 80)
+                if (temp == TEMP_SENSOR_DISCONNECTED)
                     temp = 0;
             }
             catch (Exception error)
@@ -429,17 +431,17 @@ namespace ASCOM.QAstroDew
 
         #region Form Functions
 
-        private void lblMinimize_Click(object sender, EventArgs e)
+        private void LblMinimize_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
         }
 
-        private void lblClose_Click(object sender, EventArgs e)
+        private void LblClose_Click(object sender, EventArgs e)
         {
-            if (MonConnected)
+            if (DewMonConnected)
             {
                 currenttimeTimer.Stop();
-                MonConnected = false;
+                DewMonConnected = false;
             }
 
             Environment.Exit(0);
@@ -470,7 +472,7 @@ namespace ASCOM.QAstroDew
             dragging = false;
         }
 
-        private void lblAbout_Click(object sender, EventArgs e)
+        private void LblAbout_Click(object sender, EventArgs e)
         {
             using (About about = new About())
                 about.ShowDialog();
@@ -480,11 +482,11 @@ namespace ASCOM.QAstroDew
 
         #region Timer Functions
 
-        private void timerUI_Tick(object sender, EventArgs e)
+        private void dataUpdateTimer_Tick(object sender, EventArgs e)
         {
             try
             {
-                if (MonConnected)
+                if (DewMonConnected)
                     UpdateUI();
             }
             catch (Exception error)
@@ -494,11 +496,13 @@ namespace ASCOM.QAstroDew
             }
         }
 
-        private void trackerUpdateTimer_Tick(object sender, EventArgs e)
+        // Disable the Manual Power Track Bars for 5 seconds after a change what made to the Power setting of one of the Dew Bands.
+        // The Power Track Bars are disabled to ensure that the change in Power is send correctly to the Arduino unit.
+        private void TrackerUpdateTimer_Tick(object sender, EventArgs e)        // This is a 1 second Timer Tick
         {
             try
             {
-                if (iTrackBarDisabled < 5)
+                if (iTrackBarDisabled < 5)             // While the Timer has not reached 5 sec, disable the Power Track Bars
                 {
                     StatusMessage(Status.UPDATEDEW);
                     iTrackBarDisabled++;
@@ -506,7 +510,7 @@ namespace ASCOM.QAstroDew
                     trackBarDew1.Enabled = false;
                     trackBarDew2.Enabled = false;
                 }
-                else
+                else                                    // If the 5 seconds have been reached, enable the Power Track Bars, reset & stop the timer.
                 {
                     trackBarDew1.Enabled = true;
                     trackBarDew2.Enabled = true;
@@ -518,10 +522,38 @@ namespace ASCOM.QAstroDew
             catch { }
         }
 
-        private void currenttimeTimer_Tick(object sender, EventArgs e)
+        private void CurrenttimeTimer_Tick(object sender, EventArgs e)
         {
-            updateCurrentTime();
+            UpdateCurrentTime();
         }
+
+        #endregion
+
+        #region Logging
+        private void InitialiseLog()
+        {
+            //            dLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Pres,Tmp1,Pwr1,Tmp2,Pwr2");
+            DLogger.LogMessage(logName, "DateTime,ObsT,Hum,Dew,Tmp1,Pwr1,Tmp2,Pwr2");
+        }
+
+        private static TraceLogger DLogger
+        {
+            get
+            {
+                if (dataLogger == null)
+                {
+                    dataLogger = new TraceLogger("", logName)
+                    {
+                        Enabled = true
+                    };
+                }
+                return dataLogger;
+            }
+        }
+
+        #endregion
+
     }
-    #endregion
+
+
 }
