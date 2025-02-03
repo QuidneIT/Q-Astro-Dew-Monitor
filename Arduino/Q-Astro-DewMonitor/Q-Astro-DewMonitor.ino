@@ -6,13 +6,12 @@
  */
 
 #define DEVICE_RESPONSE "Q-Astro Dew Monitor"
-#define VERSION "v5.0.5"
+#define VERSION "v5.1.0"
 
 #include <Arduino.h>
 #include <OneWire.h>
 
 #include <EEPROM.h>
-#include "qEEPROM.h"
 
 #include <DallasTemperature.h>
 
@@ -25,14 +24,10 @@
 
 #include "Timer.h"
 
-#define qastroId 'i'
-#define observingconditionsId 'o'
-
-String ASCOMcmd = "";
-bool ASCOMcmdComplete = false;
-
-bool ShowData = false;
-int DisplayAlwaysOn = 0;
+#include "Q-Astro-EEPROM.h"
+#include "Q-Astro-DewMonitor.h"
+#include "OLED-LCD.h"
+#include "DewManagement.h"
 
 void setup() 
 {

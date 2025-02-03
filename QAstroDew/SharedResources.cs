@@ -241,6 +241,7 @@ namespace ASCOM.QAstroDew
                         if (s_z <= 0)
                         {
                             SharedSerial.Connected = false;
+                            s_z = 0;
                             traceLogger.Enabled = false;
                             traceLogger.Dispose();
                             traceLogger = null;

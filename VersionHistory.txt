@@ -101,6 +101,12 @@ Date	    Who	Vers	Description
 							- Spelling corrections in comments.
 						ASCOM Driver:
 							- Additional cleanup of ASCOM driver connection state when Dispose command is given.
+							- LocelServer - SharedResources - set s_z = 0 when last last connection is removed (e.g. it is possible for s_z to be a negative value). Setting to 0 just ensure a proper cleanup.
+
+17/06/2024 RvE	5.1.0	Update Arduino code
+						Arduino Code:
+							- Renamed files to increase readability
+							- Moved appropriate code the header files.
 
 
 FYI: The code is not perfect, by a long shot. But it is more stable than before.
