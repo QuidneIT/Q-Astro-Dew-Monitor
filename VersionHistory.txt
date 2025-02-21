@@ -107,7 +107,7 @@ Date	    Who	Vers	Description
 						Arduino Code:
 							- Renamed files to increase readability
 							- Moved appropriate code the header files.
-21/02/2025 RvE	5.1.2	Update ASCOM Driver code
+21/02/2025 RvE	5.1.3	Update ASCOM Driver code
 						Driver.cs
 							- Due to local regional settings the decimal separator the values might be presented correctly as the Arduino returns a . as decimal separator and a country might use a ,. As a result the ASCOM driver will ignore the . and present the value without the .
 

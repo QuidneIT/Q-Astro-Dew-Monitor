@@ -136,6 +136,7 @@ namespace ASCOM.QAstroDew
             string command = "";
             bool remote = true;
             string response = "";
+            bool checkDecimal = false;
 
             SharedResources.tl.LogMessage(driverShortName + "Action", actionName + "-" + actionParameters);
 
@@ -145,10 +146,12 @@ namespace ASCOM.QAstroDew
             {
                 case "GetDewTemp":
                     command = "e";
+                    checkDecimal = true;
                     break;
 
                 case "GetDewPower":
                     command = "p";
+                    checkDecimal = true;
                     break;
 
                 case "SetDewPower":
@@ -202,9 +205,15 @@ namespace ASCOM.QAstroDew
             }
 
             if (remote)
-                return SharedResources.SendMessage(ASCOMfunction, command + actionParameters);
-            else
-                return response;
+            {
+                response = SharedResources.SendMessage(ASCOMfunction, command + actionParameters);
+
+                if (checkDecimal)
+                    response = CheckDecimalSeparator(response).ToString();
+            }
+
+             return response;
+
         }
 
         public void CommandBlind(string command, bool raw)
@@ -740,8 +749,9 @@ namespace ASCOM.QAstroDew
 
         private Double CheckDecimalSeparator(string value)
         {
+            string orgValue = value;
             if (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator != ".")
-                value.Replace(".", ",");
+                value = value.Replace(".", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
             return Convert.ToDouble(value);
         }
