@@ -182,8 +182,11 @@ int calcDewHeaterPowerSetting(double dewBandTemp)
   int sensorPower = 0;
   double baselineTemp = DewPoint;                                   // Set Dewpoint as the baselineTemp for Dew Heater Power Calculation.
 
-  if (dewBandTemp <= dewConfig.minDewBandTemp)                      // If the Dewband Temp = < than the Predefined Minimum Dewband Temp
-      baselineTemp = dewConfig.minDewBandTemp;                      // then set the baselineTemp as the Predefineid Minimum Dewband Temp. 
+//  if (dewBandTemp <= dewConfig.minDewBandTemp)                      // If the Dewband Temp = < than the Predefined Minimum Dewband Temp
+//      baselineTemp = dewConfig.minDewBandTemp;                      // then set the baselineTemp as the Predefineid Minimum Dewband Temp. 
+
+  if (dewBandTemp <= dewConfig.dewThreshold)                      // If the Dewband Temp = < than the Predefined Minimum Dewband Temp
+      baselineTemp = dewConfig.dewThreshold;                      // then set the baselineTemp as the Predefineid Minimum Dewband Temp. 
 
   tempDiff = (((baselineTemp) + (dewConfig.dewThreshold)) - (dewBandTemp));   // Heater ON if  temp Diff  >  SensorTemp - (Baseline Temp(C) + Threshold(C))
   tempDiff = constrain(tempDiff, 0.0, dewConfig.dewThreshold);       // restrict between 0 & threshold
@@ -478,8 +481,10 @@ void returnAllData()
   returnData += "cn" + String((dewConfig.minDewBandTemp)) + "_";
   returnData += "cq" + String(dewConfig.adjustPowerFixPercentage) + "_";
   returnData += "cp" + String(dewConfig.powerUpdateInterval) + "_";
-  returnData += "cw" + String(dewConfig.dewThreshold) + "_";
-  returnData += "ct" + String(dewConfig.tempDiffBeforeUpdate);
+//  returnData += "cw" + String(dewConfig.dewThreshold) + "_";
+  returnData += "cw" + String(dewConfig.dewThreshold);
+
+//  returnData += "ct" + String(dewConfig.tempDiffBeforeUpdate);
 
   SendSerialCommand(observingconditionsId, returnData);
 }

@@ -36,7 +36,7 @@
 int dewMonitorMode = DEWMONITOR_AUTO_MODE;
 
 #define DEWPOINT_DEF_THRESHOLD 5    // Threshold of min temp of the dewbands. Calculated Dewpoint + This Threshold is the minimum temp for a dewband.
-#define DEWBAND_DEF_MINTEMP 7       // Minimum temp of a dewband. This values needs to be equal or above the DEWPOINT_DEF_THRESHOLD.
+//#define DEWBAND_DEF_MINTEMP 7       // Minimum temp of a dewband. This values needs to be equal or above the DEWPOINT_DEF_THRESHOLD.
 
 #define TEMP_DEF_DIFF_BEFORE_UPDATE 2   //Default Temp Difference before a power update will be applied.
 #define POWER_DEF_UPDATE_INTERVAL 30    //Default Time interval (sec) before a power update will be applied.

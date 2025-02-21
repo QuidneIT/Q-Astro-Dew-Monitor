@@ -386,7 +386,9 @@ namespace ASCOM.QAstroDew
             {
                 string dewPoint = SharedResources.SendMessage(ASCOMfunction, "d");
                 SharedResources.tl.LogMessage(driverShortName + " DewPoint", dewPoint);
-                return Convert.ToDouble(dewPoint);
+
+                return CheckDecimalSeparator(dewPoint);
+//                return Convert.ToDouble(dewPoint);
             }
         }
 
@@ -403,7 +405,10 @@ namespace ASCOM.QAstroDew
             {
                 string humidity = SharedResources.SendMessage(ASCOMfunction, "h");
                 SharedResources.tl.LogMessage(driverShortName + " Humidity", humidity);
-                return Convert.ToDouble(humidity);
+
+                return CheckDecimalSeparator(humidity);
+
+//                return Convert.ToDouble(humidity);
             }
         }
 
@@ -546,7 +551,9 @@ namespace ASCOM.QAstroDew
 
                 string obsTemp = SharedResources.SendMessage(ASCOMfunction, "t");
                 SharedResources.tl.LogMessage(driverShortName + " Obs Temperature", obsTemp);
-                return Convert.ToDouble(obsTemp);
+
+                return CheckDecimalSeparator(obsTemp);
+//                return Convert.ToDouble(obsTemp);
             }
         }
 
@@ -596,7 +603,10 @@ namespace ASCOM.QAstroDew
             {
                 string timeSinceLastUpdate = SharedResources.SendMessage(ASCOMfunction, "i");      // returns Seconds since the last sensor update
                 SharedResources.tl.LogMessage(driverShortName + " TimeSinceLastUpdate", timeSinceLastUpdate);
-                return Convert.ToDouble(timeSinceLastUpdate);
+
+                return CheckDecimalSeparator(timeSinceLastUpdate);
+
+//                return Convert.ToDouble(timeSinceLastUpdate);
             }
             catch
             {
@@ -649,7 +659,9 @@ namespace ASCOM.QAstroDew
         {
             string recTemp = SharedResources.SendMessage(ASCOMfunction, "e" + heater.ToString());
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Temp", recTemp);
-            return Convert.ToDouble(recTemp);
+
+            return CheckDecimalSeparator(recTemp);
+//            return Convert.ToDouble(recTemp);
         }
 
         public double DewHeaterPower(int heater)
@@ -657,7 +669,9 @@ namespace ASCOM.QAstroDew
             string recPower = SharedResources.SendMessage(ASCOMfunction, "p" + heater.ToString());
 
             SharedResources.tl.LogMessage(driverShortName + " Dew Heater Power", recPower);
-            return Convert.ToDouble(recPower);
+
+            return CheckDecimalSeparator(recPower);
+//            return Convert.ToDouble(recPower);
         }
 
         #endregion
@@ -722,6 +736,14 @@ namespace ASCOM.QAstroDew
             {
                 throw new ASCOM.NotConnectedException(message);
             }
+        }
+
+        private Double CheckDecimalSeparator(string value)
+        {
+            if (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator != ".")
+                value.Replace(".", ",");
+
+            return Convert.ToDouble(value);
         }
 
         #endregion

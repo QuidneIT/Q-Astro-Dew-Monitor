@@ -25,7 +25,7 @@ void UpdateEEPROMData()
 void EEPROMReset()
 {
     dewConfig.dewThreshold = DEWPOINT_DEF_THRESHOLD;
-    dewConfig.minDewBandTemp = DEWBAND_DEF_MINTEMP;
+//   dewConfig.minDewBandTemp = DEWBAND_DEF_MINTEMP;
     dewConfig.tempDiffBeforeUpdate = TEMP_DEF_DIFF_BEFORE_UPDATE;
     dewConfig.powerUpdateInterval = POWER_DEF_UPDATE_INTERVAL;
     dewConfig.adjustPowerFixPercentage = ADJUST_DEF_POWER_FIXPERCENTAGE; 
